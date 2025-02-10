@@ -23,32 +23,46 @@ import userLogoutValidation from '../validators/logout.js';
 async function authroutes(fastify, options) {
 
 
-   
 
-    fastify.post('/register', { schema: registerUserSchema ,preHandler:
-        async(request ,reply)=>{
-            const {error}=userRegisterValidation.validate(request.body);
-            if(error){
-                return reply.status(400).send({
-                    error:'Bad Request',
-                    message:error.details[0].message,
-                });
+
+    fastify.post('/register', {
+        schema: registerUserSchema, preHandler:
+            async (request, reply) => {
+
+
+                const { error: missingFieldsError } = userRegisterValidation.requiredFieldsValidation(request.body);
+                if (missingFieldsError) {
+                    return reply.status(400).send({
+                        error: 'Bad Request',
+                        message: 'Missing required fields in the body'
+                    });
+                }
+
+
+                const { error: validationError } = userRegisterValidation.validate(request.body);
+                if (validationError) {
+                    return reply.status(400).send({
+                        error: 'Bad Request',
+                        message: 'Validation failed body requirement not matching'
+                    });
+                }
             }
-        }
     }, register); // register route
 
 
-    fastify.post('/login', { schema: loginUserSchema ,preHandler:async(request,reply)=>{
-        const {error}=userLoginvalidation.validate(request.body);
-        if(error){
-            return reply.status(400).send({
-                error:'Bad Request',
-                message:error.details[0].message,
-            })
+    fastify.post('/login', {
+        schema: loginUserSchema, preHandler: async (request, reply) => {
+            const { error } = userLoginvalidation.validate(request.body);
+            if (error) {
+                return reply.status(400).send({
+                    error: 'Bad Request',
+                    message: error.details[0].message,
+                })
+            }
+
+
         }
-
-
-    }}, login); // login route
+    }, login); // login route
 
 
 
@@ -63,28 +77,29 @@ async function authroutes(fastify, options) {
     //     }
     // },logout); // logout route
 
-    fastify.post('/logout', { preHandler: async (request,reply)=>{
-           // const {error}=userLogoutValidation.validate(request.headers);
+    fastify.post('/logout', {
+        preHandler: async (request, reply) => {
+            // const {error}=userLogoutValidation.validate(request.headers);
 
-           const {error}=userLogoutValidation.validate({
-            authorization: request.headers['authorization'], // Accessing the header value
-          });
+            const { error } = userLogoutValidation.validate({
+                authorization: request.headers['authorization'], // Accessing the header value
+            });
 
 
 
 
-            if(error){
+            if (error) {
                 return reply.status(400).send({
-    
-                    error:'Bad Request',
-                    message:'The authorization header is required',
-                    });
+
+                    error: 'Bad Request',
+                    message: 'The authorization header is required',
+                });
             }
 
-            await auth(request,reply);
+            await auth(request, reply);
         }
-        },logout); // logout route
-    
+    }, logout); // logout route
+
 
 
 }

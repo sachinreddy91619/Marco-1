@@ -19,11 +19,11 @@ console.log("the server started successfully");
 mongoose.connect(process.env.MONGO_URL)
     .then(() => {
         app.log.info('Database connected successfully');
-        console.log('Database connected successfully');
+        
     })
     .catch((err) => {
         app.log.error('MongoDB not connected successfully', err);
-        console.error('MongoDB not connected successfully', err);
+       
     });
 
 app.register(eventRou, { prefix: '/event' });

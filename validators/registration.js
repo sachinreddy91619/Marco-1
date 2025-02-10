@@ -15,4 +15,22 @@ const userRegisterValidation=joi.object({
 
 }) ;
 
+
+
+
+userRegisterValidation.requiredFieldsValidation = (data) => {
+    const requiredFields = ['username', 'email', 'password', 'role'];
+    for (let field of requiredFields) {
+        if (!data[field]) {
+            return {
+                error: {
+                    message: 'Missing required fields in the body'
+                }
+            };
+        }
+    }
+    return { error: null };
+};
+
+
 export default userRegisterValidation
