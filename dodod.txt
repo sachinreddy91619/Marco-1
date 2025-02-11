@@ -1,0 +1,209 @@
+import fastify from 'fastify';
+import supertest from 'supertest';
+import jwt from 'jsonwebtoken';  // Used to generate valid token
+import { logout } from '../controllers/authopera.js';  // Import your controller for testing
+import authroutes from '../routes/authroutes';  // Import the routes for auth
+import Logs from '../models/Logs';  // Import your Logs model
+
+const app = fastify();
+
+// Register your routes (we are testing auth routes in this case)
+app.register(authroutes, { prefix: '/auth' });
+
+jest.mock('../models/Logs');  // Mocking the Logs model for testing
+
+describe('POST /auth/logout', () => {
+    
+    let validToken;
+    let mockUserLogs;
+
+    beforeAll(() => {
+        // Create a mock user object with _id and role
+        const user = { _id: 'user123', role: 'admin' };
+
+        // Generate a valid JWT token with the mock user payload
+        const payload = { id: user._id, role: user.role };
+        validToken = jwt.sign(payload, process.env.SEC, { expiresIn: '1h' });
+        
+        // Mock the Logs model for the happy path
+        mockUserLogs = {
+            UserId: 'user123',
+            UserToken: validToken,
+            logouttime: null,
+            save: jest.fn().mockResolvedValue(true),
+        };
+        
+        // Mock `Logs.findOne` to return a mock user logs object
+        Logs.findOne.mockResolvedValue(mockUserLogs);
+    });
+
+    afterAll(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should log the user out successfully with a valid token', async () => {
+        // Send a valid token in the header
+        const response = await supertest(app.server)
+            .post('/auth/logout')
+            .set('Authorization', `Bearer ${validToken}`)
+            .send();
+
+        // Verify the response
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('user logged out successfully');
+        expect(mockUserLogs.save).toHaveBeenCalled();  // Ensure that `save` was called on the mock
+    });
+});
+
+
+=================================>
+in my authroute i am having theis  
+import fastify from 'fastify';
+import joi from 'joi';
+
+const app = fastify({
+    logger: true
+});
+
+import { register, login } from '../controllers/authopera.js';
+import auth from '../middleware/authmiddle.js';
+import registerUserSchema from '../schemas/registerUserSchema.js';
+import loginUserSchema from '../schemas/loginUserSchema.js';
+
+import { logout } from '../controllers/authopera.js'; import userLogoutValidation from '../validators/logout.js'; fastify.post('/logout', {
+        preHandler: async (request, reply) => {
+            // const {error}=userLogoutValidation.validate(request.headers);
+
+            const { error } = userLogoutValidation.validate({
+                authorization: request.headers['authorization'], // Accessing the header value
+            });
+
+
+
+
+            if (error) {
+                return reply.status(400).send({
+
+                    error: 'Bad Request',
+                    message: 'Validation failed in the header requirement not matching',
+                });
+            }
+
+            await auth(request, reply);
+        }
+    }, logout); // logout route
+
+
+
+}
+
+export default authroutes; and here iam having the        await auth(request, reply); in my logout route which iam using the middleware to authenticate , so my middleware function is which is there in othere folder here iam importing  routes, and my middleare function is import fastify from 'fastify';
+import jwt from 'jsonwebtoken';
+
+const app = fastify({
+    logger: true
+});
+
+import Logs from '../models/Logs.js';
+
+
+export default async (request, reply) => {
+    const authHeader = request.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];  // Extract the token from the authorization header
+
+    if (!token) {
+        return reply.status(401).send({ error: 'Token not found' });
+    }
+
+    console.log(token);
+
+
+    try {
+        // Verify the JWT token
+        const decoded = jwt.verify(token, process.env.SEC);
+        const userId = decoded.id;
+
+        // Check if the user has an active session in the Logs model
+        const userLogs = await Logs.findOne({ UserId: userId });
+
+        console.log(userLogs);
+
+        // If no logs are found or if the UserToken is null, it means the user is logged out
+        if (!userLogs || userLogs.UserToken === null) {
+            return reply.status(403).send({ error: 'User is logged out, access denied' });
+        }
+
+        // Attach the user info to the request object for further use in route handlers
+
+        console.log("HAIHAIHAIHAHAIHAIHAIHAIHAIHAIHAIHAIHAIHAIHAI")
+        request.user = decoded;
+        
+
+        // Continue with the request processing
+
+    } catch (err) {
+        console.error('Token verification failed:', err);
+        return reply.status(403).send({ error: 'Invalid or expired token' });
+    }
+}; and my validation logic is this import fastify from 'fastify';
+
+import joi from 'joi';
+
+const app=fastify({
+    logger:true
+});
+
+const userLogoutValidation=joi.object({
+
+    authorization:joi.string().
+    pattern(/^Bearer [A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/,'JWT Token').required()
+    
+
+  
+       
+    
+})
+
+export default userLogoutValidation and my logout controller is 
+export const logout = async (request, reply) => {
+
+    try {
+
+
+        const authHeader = request.headers['authorization'];
+        console.log("Logout attempt, received token:", authHeader);
+        const token = authHeader && authHeader.split(' ')[1];
+//Done
+        if (!token) {
+            return reply.status(401).send({ error: 'token required for the logging' })
+        };
+
+
+        const decoded = jwt.verify(token, process.env.SEC);
+        const userId = decoded.id;
+        console.log(userId);
+
+        const userlogs = await Logs.findOne({ UserId: userId });
+
+        console.log("User logs for logout:", userlogs);
+
+        if (!userlogs) {
+            return reply.status(400).send({ message: 'No active session found for this token' });
+        }
+
+
+        console.log(userlogs, "user logs");
+        userlogs.logouttime = Date.now();
+        userlogs.UserToken = null;
+
+        await userlogs.save();
+        console.log("Logging out user, sending response.");
+        reply.send({ message: 'user logged out successfully' });
+    }
+
+    catch (err) {
+        //console.log('Error durign the logout', err);
+        reply.status(500).send({ error: 'error while logout in the current-user' });
+    }
+
+} so , please, based on all these give me the test code for happy  and for happy code i need to send the token in the header, Bearer <token> 
