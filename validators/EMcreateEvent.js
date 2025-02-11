@@ -18,6 +18,22 @@ const EMcreateEventValidation=joi.object({
     bookedseats:joi.number().required(),
 
 
-})
+});
+
+EMcreateEventValidation.requiredFieldsValidation = (data) => {
+    const requiredFields = ['amountrange','eventname','eventdate','eventlocation','eventtime','totalseats','availableseats','bookedseats'];
+    for (let field of requiredFields) {
+        if (!data[field]) {
+            return {
+                error: {
+                    message: 'Missing required fields in the body@@@'
+                }
+            };
+        }
+    }
+    return { error: null };
+};
+
+
 
 export default EMcreateEventValidation

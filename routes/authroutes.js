@@ -49,14 +49,24 @@ async function authroutes(fastify, options) {
             }
     }, register); // register route
 
-
     fastify.post('/login', {
-        schema: loginUserSchema, preHandler: async (request, reply) => {
-            const { error } = userLoginvalidation.validate(request.body);
-            if (error) {
+         preHandler: async (request, reply) => {
+
+
+            // const { error: missingFieldsError } = userRegisterValidation.requiredFieldsValidation(request.body);
+            // if (missingFieldsError) {
+            //     return reply.status(400).send({
+            //         error: 'Bad Request',
+            //         message: 'Missing required fields in the body'
+            //     });
+            // }
+
+
+            const { error:validationError} = userLoginvalidation.validate(request.body);
+            if (validationError) {
                 return reply.status(400).send({
                     error: 'Bad Request',
-                    message: error.details[0].message,
+                    message: 'Validation failed body requirement not matching',
                 })
             }
 
@@ -92,7 +102,7 @@ async function authroutes(fastify, options) {
                 return reply.status(400).send({
 
                     error: 'Bad Request',
-                    message: 'The authorization header is required',
+                    message: 'Validation failed in the header requirement not matching',
                 });
             }
 

@@ -51,12 +51,27 @@ async function eventRoutes(fastify, options) {
   fastify.post('/create', {
     schema: createEventSchema, preHandler: async (request, reply) => {
 
-      const { error } = EMcreateEventValidation.validate(request.body);
-      if (error) {
+
+      const {error:missingFieldsError}=EMcreateEventValidation.requiredFieldsValidation(request.body);
+      console.log(request.body,"Iam doig good")
+
+      if (missingFieldsError) {
+        console.log(request.body,"Iam doig bad")
+
+        console.log("iam sachin ")
+          return reply.status(400).send({
+              error: 'Bad Request',
+              message: 'Missing required fields in the body$$$AS'
+          });
+      }
+      
+      const { error :validateError} = EMcreateEventValidation.validate(request.body);
+
+      if (validateError) {
         return reply.status(400).send({
           error: 'Bad Request',
-          message: error.details[0].message,
-        })
+          message: 'Validation failed! body requirement not matching',
+        });
       }
 
 

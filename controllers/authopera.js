@@ -62,7 +62,7 @@ export const register = async (request, reply) => {
     }
     catch (err) {
         //  console.error('Error creating the user',err);
-        console.error("Error during user registration:", err);
+      //  console.error("Error during user registration:", err);
         return reply.status(500).send({ error: 'error creating the user' });
     }
 }
@@ -73,16 +73,32 @@ export const login = async (request, reply) => {
 
     const { username, password } = request.body;
     // console.log("Login attempt:", { username });  // Debugging login request
+
+
+    //const requiredFields = ['username', 'password'];
+    // const missingFields = requiredFields.filter(field => !request.body[field]);
+    // // Done
+    // if (missingFields.length > 0) {
+    //     console.log("Missing required fields:", missingFields);  // Debugging missing fields
+    //     return reply.status(400).send({
+    //         error: 'Bad Request',
+    //         message: 'Missing required fields in the body',
+    //     });
+    // }
+
+
+
+
     try {
         const user = await User.findOne({ username });
         console.log("User found for login:", user ? user._id : "No user found");
-
+        //DONE
         if (!user) {
             return reply.status(400).send({ error: 'user not found' });
         }
 
         const ismatch = await bcrypt.compare(password, user.password);
-
+        //DONE
         if (!ismatch) return reply.status(400).send({ error: 'invalid credentials' });
 
         const payload = { id: user._id, role: user.role };
@@ -97,7 +113,7 @@ export const login = async (request, reply) => {
         const existingLog = await Logs.findOne({ UserId: user._id })
 
         console.log(existingLog, "exisiting loger details here");
-
+        //DONE
         if (existingLog) {
             console.log("Existing log found, updating log:", existingLog);
             existingLog.UserId = user._id,
@@ -134,14 +150,14 @@ export const login = async (request, reply) => {
 
 
         console.log("Sending login response with token:", token);
-
+// DONE
         reply.status(200).send({ token });
 
     }
     catch (err) {
         // Log the actual error message for debugging
-        console.error('Error during login:', err);
-        reply.status(500).send({ error: 'Error while logging in the user', details: err.message });
+       
+        reply.status(500).send({ error: 'Error while logging in the user'});
     }
 
 };
@@ -193,7 +209,7 @@ export const logout = async (request, reply) => {
         const authHeader = request.headers['authorization'];
         console.log("Logout attempt, received token:", authHeader);
         const token = authHeader && authHeader.split(' ')[1];
-
+//Done
         if (!token) {
             return reply.status(401).send({ error: 'token required for the logging' })
         };
@@ -208,7 +224,7 @@ export const logout = async (request, reply) => {
         console.log("User logs for logout:", userlogs);
 
         if (!userlogs) {
-            return reply.status(401).send({ error: 'No active session found for this token' });
+            return reply.status(400).send({ message: 'No active session found for this token' });
         }
 
 
@@ -222,7 +238,7 @@ export const logout = async (request, reply) => {
     }
 
     catch (err) {
-        console.log('Error durign the logout', err);
+        //console.log('Error durign the logout', err);
         reply.status(500).send({ error: 'error while logout in the current-user' });
     }
 

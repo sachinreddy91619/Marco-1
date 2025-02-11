@@ -14,8 +14,24 @@ const app = fastify({
 export const createEvent = async (request, reply) => {
 
     console.log("this is the starting of the create route");
+    console.log(request.body)
 
     let { eventname, eventdate, eventlocation, amountrange, eventtime, totalseats, availableseats, bookedseats } = request.body;
+
+    
+    // const requiredFields = ['eventname', 'eventdate', 'eventlocation', 'amountrange','eventtime','totalseats','availableseats','bookedseats'];
+    // const missingFields = requiredFields.filter(field => !request.body[field]);
+    // // Done
+    // if (missingFields.length > 0) {
+    //     console.log("Missing required fields:", missingFields);  // Debugging missing fields
+    //     return reply.status(400).send({
+    //         error: 'Bad Request',
+    //         message: 'Missing required fields in the body',
+    //     });
+    // }
+
+
+
 
 
     const eventDate = new Date(eventdate);
