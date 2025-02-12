@@ -152,7 +152,7 @@ describe("testing when username or password or email or role is missing", () => 
             { email: "email@gmail.com", role: "admin" },                                  // Missing username, password
             { password: "pas@1Qsword", email: "email@gmail.com" },                          // Missing username, role
             { password: "pas@1Qsword", role: "admin" },                            // Missing username, email
-          // All fields present
+            // All fields present
             { username: "username" },                                          // Missing password, email, role
             { password: "pas@1Qsword" },                                          // Missing username, email, role
             { email: "email@gmail.com" },                                                // Missing username, password, role
@@ -386,17 +386,17 @@ describe("testing the login functionality", () => {
 describe("testing the validation for missing fields in the body if any of username, password ", () => {
     test("should respond with a status code of 400 if any field is invalid", async () => {
         // Mock the findOne method to return null (no existing user)
-       Users.findOne.mockResolvedValue(null);
+        Users.findOne.mockResolvedValue(null);
 
         // Test data with invalid fields
         const bodydata = [
-            {  password: "T@est1password" },  
-            { username: "validusername"},  
+            { password: "T@est1password" },
+            { username: "validusername" },
             {}
-            
-           // { username: "uswertyujghty", password: "T@est1password" }
 
-           
+            // { username: "uswertyujghty", password: "T@est1password" }
+
+
         ];
 
         for (let i = 0; i < bodydata.length; i++) {
@@ -418,7 +418,7 @@ describe("testing the validation for missing fields in the body if any of userna
             expect(responseBody.error).toBe('Bad Request');
             expect(responseBody.message).toMatch('Missing required fields in the body');
 
-           // expect(mockSave).toHaveBeenCalledTimes(0);  // Ensure save is not called when fields are invalid
+            // expect(mockSave).toHaveBeenCalledTimes(0);  // Ensure save is not called when fields are invalid
         }
     });
 });
@@ -430,17 +430,17 @@ describe("testing the validation for missing fields in the body if any of userna
 describe("testing the validation of username, password", () => {
     test("should respond with a status code of 400 if any field is invalid", async () => {
         // Mock the findOne method to return null (no existing user)
-       Users.findOne.mockResolvedValue(null);
+        Users.findOne.mockResolvedValue(null);
 
         // Test data with invalid fields
         const bodydata = [
             { username: "us", password: "T@est1password" },  // Invalid username (too short)
             { username: "validusername", password: "short" },  // Invalid password (too short)
-            
-            
-           // { username: "uswertyujghty", password: "T@est1password" }
 
-           
+
+            // { username: "uswertyujghty", password: "T@est1password" }
+
+
         ];
 
         for (let i = 0; i < bodydata.length; i++) {
@@ -462,7 +462,7 @@ describe("testing the validation of username, password", () => {
             expect(responseBody.error).toBe('Bad Request');
             expect(responseBody.message).toMatch('Validation failed body requirement not matching');
 
-           // expect(mockSave).toHaveBeenCalledTimes(0);  // Ensure save is not called when fields are invalid
+            // expect(mockSave).toHaveBeenCalledTimes(0);  // Ensure save is not called when fields are invalid
         }
     });
 });
@@ -515,15 +515,171 @@ describe("testing when an error occurs during login", () => {
 
 
 
+//catch block logout functionality :
+
+
+describe("Testing logout functionality when an error occurs", () => {
+
+    beforeEach(() => {
+
+        jest.doMock('../../middleware/authmiddle.js', () => jest.fn((req, res, next) => next()));
+
+        jwt.verify.mockImplementation(() => ({ id: 'user123' }));
+    });
+
+    afterEach(() => {
+        jest.resetModules();
+        jest.clearAllMocks();
+    });
+
+
+
+
+
+
+    test("should return 500 status when Logs.findOne throws an error", async () => {
+
+
+        const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC);
+        // jest.mock('../../middleware/authmiddle.js', () => jest.fn((req, res, next) => next()));
+
+        // // Create a valid token for a valid user
+        // jwt.verify.mockImplementation(() => {
+        //     return { id: 'user123' }; // Fake decoded token
+        // });
+
+        Logs.findOne.mockRejectedValue(new Error('Database error'));
+
+        // Simulate the logout request with the valid Authorization header
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout',
+            headers: {
+                Authorization: `Bearer ${mockToken}`,  // Pass the token as Authorization header
+            },
+        });
+
+        // Assert that the response status is 500 (Internal Server Error)
+        expect(response.statusCode).toBe(500);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+        const responseBody = JSON.parse(response.body);
+
+        // Assert that the error message is correct
+        expect(responseBody.error).toBe('error while logout in the current-user');
+    });
+});
+
+
+
+
+
+
+// In route validation error before going to the controller ;
+
+// when authorization header is invalid 
+
+describe("Testing the logout validation functionality", () => {
+
+    test("should respond with the 400 status code for invalid header or token format in logout ", async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout',
+            headers: {
+                // Simulate an invalid authorization header (e.g., missing or wrong format)
+                'Authorization': 'Bearer1', // This is an example invalid token format
+            },
+
+        })
+
+
+        expect(response.statusCode).toBe(400);  // Invalid fields should return 400
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+        const responseBody = JSON.parse(response.body);
+
+        // Ensure error message matches the specific validation error
+        expect(responseBody.error).toBe('Bad Request');
+        expect(responseBody.message).toMatch('Validation failed in the header requirement not matching');
+
+    }
+
+    )
+})
+
+
+// IN  authorization header if token not there 
+describe("Testing the logout validation functionality", () => {
+
+    test("should respond with the 400 status code for invalid header or token format in logout ", async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout',
+            headers: {
+                // Simulate an invalid authorization header (e.g., missing or wrong format)
+                'Authorization': 'Bearer', // This is an example invalid token format
+            },
+
+        })
+
+
+        expect(response.statusCode).toBe(400);  // Invalid fields should return 400
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+        const responseBody = JSON.parse(response.body);
+
+        // Ensure error message matches the specific validation error
+        expect(responseBody.error).toBe('Bad Request');
+        expect(responseBody.message).toMatch('Validation failed in the header requirement not matching');
+
+    }
+
+    )
+})
+
+
+
+//IN  authorization header if token and Bearer not there then we get 
+describe("Testing the logout validation functionality", () => {
+
+    test("should respond with the 400 status code for invalid header or token format in logout ", async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout',
+            headers: {
+                // Simulate an invalid authorization header (e.g., missing or wrong format)
+                'Authorization': '', // This is an example invalid token format
+            },
+
+        })
+
+
+        expect(response.statusCode).toBe(400);  // Invalid fields should return 400
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+        const responseBody = JSON.parse(response.body);
+
+        // Ensure error message matches the specific validation error
+        expect(responseBody.error).toBe('Bad Request');
+        expect(responseBody.message).toMatch('Validation failed in the header requirement not matching');
+
+    }
+
+    )
+})
+
+
+// checking for error after going in to the controller
+
 
 // Successfully logout 
 describe("Testing the successful logout functionality", () => {
 
-    let mockToken;
-    let mockUserLog;
+    // let mockToken;
+    // let mockUserLog;
     // beforeAll( ()=>{
 
-    
+
     //     mockUserLog = {
     //         _id: 'log123',
     //         UserId: 'user123',
@@ -533,44 +689,48 @@ describe("Testing the successful logout functionality", () => {
     //         save: jest.fn().mockResolvedValue(true) // Mock the save method to resolve successfully
     //     };
     // })
-      //mockToken = jwt.sign({ id: 'user123' }, process.env.SEC); // Use your JWT secret here
+    //mockToken = jwt.sign({ id: 'user123' }, process.env.SEC); // Use your JWT secret here
 
     test("should return 200 and successfully log out the user", async () => {
 
 
-        
+        const mockToken = 'mockedToken.mockedToken.mockedToken';
 
-       // const UserToken = 'mockedToken.mockedToken.mockedToken';
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
 
-      Logs.findOne.mockResolvedValue({
-        _id: 'log123',
-                UserId: 'user123',
-                logintime:'2025-02-03T10:19:31.568+00:00',
-                logouttime: null, 
-                UserToken: 'mockedToken.mockedToken.mockedToken',
-                //save: jest.fn().mockResolvedValue(true) // Mock the save method to resolve successfully
-            
-      });
 
-//=========>
+        const mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
 
-      const mockToken = 'mockedToken.mockedToken.mockedToken';
+        // const UserToken = 'mockedToken.mockedToken.mockedToken';
 
-       //jwt.sign = jest.fn().mockReturnValue(mockToken);
+        Logs.findOne.mockResolvedValue(mockUserLog);
 
-       jwt.verify.mockImplementation((token, Process, callback) => {
-      
-                     callback(null, { id: 'mockUserId', role: 'admin' });
-              });
+        //=========>
 
-              Logs.findOne.mockResolvedValue({
-                         UserToken: mockToken,
-                             UserId: 'mockUserId',
-                         });
-                        
 
-     // Logs.findOne = jest.fn().mockResolvedValue(true); // Simulating no existing log
-     // Logs.prototype.save = jest.fn().mockResolvedValue(true);
+
+        //jwt.sign = jest.fn().mockReturnValue(mockToken);
+
+        //    jwt.verify.mockImplementation((token, Process, callback) => {
+
+        //                  callback(null, { id: 'mockUserId', role: 'admin' });
+        //           });
+
+        //           Logs.findOne.mockResolvedValue({
+        //                      UserToken: mockToken,
+        //                          UserId: 'mockUserId',
+        //                      });
+
+
+        // Logs.findOne = jest.fn().mockResolvedValue(true); // Simulating no existing log
+        // Logs.prototype.save = jest.fn().mockResolvedValue(true);
 
 
         // Simulate the logout request with the Authorization header
@@ -578,12 +738,12 @@ describe("Testing the successful logout functionality", () => {
             method: 'POST',
             url: '/auth/logout',
             headers: {
-                'Authorization':`Bearer ${mockToken}`,
+                'Authorization': `Bearer ${mockToken}`,
             },
         });
 
-       
-    // expect(response.statusCode).toBe(200);
+
+        // expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
         const responseBody = JSON.parse(response.body);
         // Assert that the message is correct
@@ -595,165 +755,65 @@ describe("Testing the successful logout functionality", () => {
 
 
 
-
-
-// In route validation error before going to the controller ;
-
-// when authorization header is invalid 
-
-// describe("Testing the logout validation functionality",()=>{
-    
-//     test("should respond with the 400 status code for invalid header or token format in logout ", async()=>{
-//         const response=await app.inject({
-//             method:'POST',
-//             url:'/auth/logout',
-//             headers: {
-//                 // Simulate an invalid authorization header (e.g., missing or wrong format)
-//                 'Authorization': 'Bearer1', // This is an example invalid token format
-//             },
-
-//         })
-
-
-//         expect(response.statusCode).toBe(400);  // Invalid fields should return 400
-//         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-
-//         const responseBody = JSON.parse(response.body);
-
-//         // Ensure error message matches the specific validation error
-//         expect(responseBody.error).toBe('Bad Request');
-//         expect(responseBody.message).toMatch('Validation failed in the header requirement not matching');
-
-//     }
-
-//     )
-// })
-
-
-// IN  authorization header if token not there 
-// describe("Testing the logout validation functionality",()=>{
-    
-//     test("should respond with the 400 status code for invalid header or token format in logout ", async()=>{
-//         const response=await app.inject({
-//             method:'POST',
-//             url:'/auth/logout',
-//             headers: {
-//                 // Simulate an invalid authorization header (e.g., missing or wrong format)
-//                 'Authorization': 'Bearer', // This is an example invalid token format
-//             },
-
-//         })
-
-
-//         expect(response.statusCode).toBe(400);  // Invalid fields should return 400
-//         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-
-//         const responseBody = JSON.parse(response.body);
-
-//         // Ensure error message matches the specific validation error
-//         expect(responseBody.error).toBe('Bad Request');
-//         expect(responseBody.message).toMatch('Validation failed in the header requirement not matching');
-
-//     }
-
-//     )
-// })
+describe("Testing logout with no active session", () => {
+    test("should return 400 if no active session is found for the user", async () => {
+        // Mock the behavior where no user logs are found
+        // Simulate no logs found
+        Logs.findOne.mockResolvedValue(null);
+        // Create a mock JWT token (This should match your actual token format and secret)
+        const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC); // Generate a valid JWT with a user id
 
 
 
-// IN  authorization header if token and Bearer not there then we get 
-// describe("Testing the logout validation functionality",()=>{
-    
-//     test("should respond with the 400 status code for invalid header or token format in logout ", async()=>{
-//         const response=await app.inject({
-//             method:'POST',
-//             url:'/auth/logout',
-//             headers: {
-//                 // Simulate an invalid authorization header (e.g., missing or wrong format)
-//                 'Authorization': '', // This is an example invalid token format
-//             },
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout',
+            headers: {
+                Authorization: `Bearer ${mockToken}`  // Set the Authorization header
+            },
+        });
 
-//         })
+        // Assert that the response has a 400 status code
+        expect(response.statusCode).toBe(403);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
+        const responseBody = JSON.parse(response.body);
 
-//         expect(response.statusCode).toBe(400);  // Invalid fields should return 400
-//         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-
-//         const responseBody = JSON.parse(response.body);
-
-//         // Ensure error message matches the specific validation error
-//         expect(responseBody.error).toBe('Bad Request');
-//         expect(responseBody.message).toMatch('Validation failed in the header requirement not matching');
-
-//     }
-
-//     )
-// })
-
-
-// checking for error after going in to the controller
-
-
-
-
-// describe("Testing logout with no active session", () => {
-//   test("should return 401 if no active session is found for the user", async () => {
-//     // Mock the behavior where no user logs are found
-//     Logs.findOne.mockResolvedValue(null); // Simulate no logs found
-
-//     // Create a mock JWT token (This should match your actual token format and secret)
-//     const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC); // Generate a valid JWT with a user id
-
-//     const response = await app.inject({
-//       method: 'POST',
-//       url: '/auth/logout',
-//       headers: {
-//         Authorization: `Bearer ${mockToken}`,  // Set the Authorization header
-//       },
-//     });
-
-//     // Assert that the response has a 400 status code
-//     expect(response.statusCode).toBe(400);
-//     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-
-//     const responseBody = JSON.parse(response.body);
-
-//     // Assert the response error and message match the expected ones
-//     expect(responseBody.error).toBe('Bad Request');
-//     //expect(responseBody.message).toBe('No active session found for this token');
-//   });
-// });
+        // Assert the response error and message match the expected ones
+        // expect(responseBody.error).toBe('Bad Request');
+        expect(responseBody.error).toBe('User is logged out, access denied');
+    });
+});
 
 
 
 
 
-// catch block logout functionality :
 
-// describe("Testing logout functionality when an error occurs", () => {
-//     test("should return 500 status when Logs.findOne throws an error", async () => {
-//         // Create a valid token for a valid user
-//         const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC); // Use your JWT secret here
+describe("Testing middleware - Invalid or Expired Token", () => {
+    test("should return 403 if the token is invalid or expired", async () => {
+        // Mock JWT verification failure
+        jwt.verify.mockImplementation(() => {
+            throw new Error("Invalid token");
+        });
 
-    
-//         Logs.findOne.mockRejectedValue(new Error('Database error'));
+        const mockToken = "invalid.mocked.token";
 
-//         // Simulate the logout request with the valid Authorization header
-//         const response = await app.inject({
-//             method: 'POST',
-//             url: '/auth/logout',
-//             headers: {
-//                 Authorization: `Bearer ${mockToken}`,  // Pass the token as Authorization header
-//             },
-//         });
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout', // Use an actual route where middleware is applied
+            headers: { Authorization: `Bearer ${mockToken}` }
+        });
 
-//         // Assert that the response status is 500 (Internal Server Error)
-//         expect(response.statusCode).toBe(500);
-//         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+        // Log response for debugging
+        console.log("Response Body:", response.body);
 
-//         const responseBody = JSON.parse(response.body);
+        // Assertions
+        expect(response.statusCode).toBe(403);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
-//         // Assert that the error message is correct
-//         expect(responseBody.error).toBe('error while logout in the current-user');
-//     });
-// });
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody.error).toBe('Invalid or expired token');
+    });
+});
+
