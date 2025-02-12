@@ -8,6 +8,9 @@ https://www.linkedin.com/pulse/authentication-using-jwt-accesstoken-refreshtoken
 
 https://dev.to/smitterhane/a-meticulous-jwt-api-authentication-guide-youve-been-looking-for-47dg
 
+token validation
+https://medium.com/@eklavya_/effortless-middleware-testing-in-express-with-jest-a-comprehensive-guide-ce9b103571b4
+
 how to implement the refresh token in node js
 
 swagger api

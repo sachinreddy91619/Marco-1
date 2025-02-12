@@ -11,28 +11,28 @@ const EMcreateEventValidation=joi.object({
     eventname:joi.string().required(),
     eventdate:joi.date().required(),
     eventlocation:joi.string().required(),
-    amountrange:joi.number().min(1).required(),
+    amountrange:joi.number().min(1).required().strict(),
     eventtime:joi.string().required(),
-    totalseats:joi.number().min(10).required(),
-    availableseats:joi.number().required(),
-    bookedseats:joi.number().required(),
+    totalseats:joi.number().min(10).required().strict(),
+    availableseats:joi.number().required().strict(),
+    bookedseats:joi.number().required().strict(),
 
 
 });
 
-EMcreateEventValidation.requiredFieldsValidation = (data) => {
-    const requiredFields = ['amountrange','eventname','eventdate','eventlocation','eventtime','totalseats','availableseats','bookedseats'];
-    for (let field of requiredFields) {
-        if (!data[field]) {
-            return {
-                error: {
-                    message: 'Missing required fields in the body@@@'
-                }
-            };
-        }
-    }
-    return { error: null };
-};
+// EMcreateEventValidation.requiredFieldsValidation = (data) => {
+//     const requiredFields = ['amountrange','eventname','eventdate','eventlocation','eventtime','totalseats','availableseats','bookedseats'];
+//     for (let field of requiredFields) {
+//         if (!data[field]) {
+//             return {
+//                 error: {
+//                     message: 'Missing required fields in the body@@@'
+//                 }
+//             };
+//         }
+//     }
+//     return { error: null };
+//};
 
 
 

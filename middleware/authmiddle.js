@@ -43,7 +43,7 @@ export default async (request, reply) => {
         // Continue with the request processing
 
     } catch (err) {
-        console.error('Token verification failed:', err);
+       // console.error('Token verification failed:', err);
         return reply.status(403).send({ error: 'Invalid or expired token' });
     }
 };
