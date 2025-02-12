@@ -16,19 +16,19 @@ const userLoginvalidation=joi.object({
 
 
 
-// userLoginvalidation.requiredFieldsValidation = (data) => {
-//     const requiredFields = ['username', 'password'];
-//     for (let field of requiredFields) {
-//         if (!data[field]) {
-//             return {
-//                 error: {
-//                     message: 'Missing required fields in the body'
-//                 }
-//             };
-//         }
-//     }
-//     return { error: null };
-// };
+userLoginvalidation.requiredFieldsValidation = (data) => {
+    const requiredFields = ['username', 'password'];
+    for (let field of requiredFields) {
+        if (!data[field]) {
+            return {
+                error: {
+                    message: 'Missing required fields in the body'
+                }
+            };
+        }
+    }
+    return { error: null };
+};
 
 
 export default userLoginvalidation

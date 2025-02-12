@@ -37,8 +37,6 @@ async function authroutes(fastify, options) {
                         message: 'Missing required fields in the body'
                     });
                 }
-
-
                 const { error: validationError } = userRegisterValidation.validate(request.body);
                 if (validationError) {
                     return reply.status(400).send({
@@ -51,15 +49,13 @@ async function authroutes(fastify, options) {
 
     fastify.post('/login', {
          preHandler: async (request, reply) => {
-
-
-            // const { error: missingFieldsError } = userRegisterValidation.requiredFieldsValidation(request.body);
-            // if (missingFieldsError) {
-            //     return reply.status(400).send({
-            //         error: 'Bad Request',
-            //         message: 'Missing required fields in the body'
-            //     });
-            // }
+            const { error: missingFieldsError } = userLoginvalidation.requiredFieldsValidation(request.body);
+            if (missingFieldsError) {
+                return reply.status(400).send({
+                    error: 'Bad Request',
+                    message: 'Missing required fields in the body'
+                });
+            }
 
 
             const { error:validationError} = userLoginvalidation.validate(request.body);
@@ -89,20 +85,22 @@ async function authroutes(fastify, options) {
 
     fastify.post('/logout', {
         preHandler: async (request, reply) => {
-            // const {error}=userLogoutValidation.validate(request.headers);
+            
 
+          
+console.log(request.headers['authorization'],"this is the request header for me ");
+
+console.log(request.headers)
             const { error } = userLogoutValidation.validate({
                 authorization: request.headers['authorization'], // Accessing the header value
             });
-
-
 
 
             if (error) {
                 return reply.status(400).send({
 
                     error: 'Bad Request',
-                    message: 'Validation failed in the header requirement not matching',
+                    message: 'Validation failed in the header requirement not matching hai !!',
                 });
             }
 

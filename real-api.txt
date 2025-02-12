@@ -1,12 +1,15 @@
 
 
-
+qqqqqq
 tokens:
 https://github.com/shaikahmadnawaz/access-refresh-tokens-nodejs
 https://www.geeksforgeeks.org/jwt-authentication-with-refresh-tokens/
 https://www.linkedin.com/pulse/authentication-using-jwt-accesstoken-refreshtoken-nodejs-keshwani-jxjaf/
 
 https://dev.to/smitterhane/a-meticulous-jwt-api-authentication-guide-youve-been-looking-for-47dg
+
+token validation
+https://medium.com/@eklavya_/effortless-middleware-testing-in-express-with-jest-a-comprehensive-guide-ce9b103571b4
 
 how to implement the refresh token in node js
 

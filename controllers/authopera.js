@@ -14,14 +14,6 @@ import app from '../app.js';
 
 console.log("Starting authopera.js...");
 
-const userRegisterSchema = joi.object({
-    username: joi.string().alphanum().min(3).max(15).required(),
-    email: joi.string().email().required(),
-    password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-    role: joi.string().valid('user', 'admin').required()
-
-});
-
 
 
 // THE REGISTRATION CONTROLLER LOGIC 
@@ -210,7 +202,7 @@ export const logout = async (request, reply) => {
         console.log("Logout attempt, received token:", authHeader);
         const token = authHeader && authHeader.split(' ')[1];
 //Done
-        if (!token) {
+        if (!token) {                        
             return reply.status(401).send({ error: 'token required for the logging' })
         };
 
