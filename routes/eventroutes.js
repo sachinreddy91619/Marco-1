@@ -49,37 +49,40 @@ async function eventRoutes(fastify, options) {
   // fastify.post('/create', { schema: createEventSchema, preHandler: [auth, roleauth(['admin'])] }, createEvent);
 
   fastify.post('/create', {
+    
      preHandler: async (request, reply) => {
 
+      await auth(request, reply)
 
-      //const {error:missingFieldsError}=EMcreateEventValidation.requiredFieldsValidation(request.body);
+      await roleauth(['admin'])(request, reply)
+
+
+      const {error:missingFieldsError}=EMcreateEventValidation.requiredFieldsValidation(request.body);
       console.log(request.body,"Iam doig good")
 
-      // if (missingFieldsError) {
-      //   console.log(request.body,"Iam doig bad")
+      if (missingFieldsError) {
+        console.log(request.body,"Iam doig bad")
 
-      //   console.log("iam sachin ")
-      //     return reply.status(400).send({
-      //         error: 'Bad Request',
-      //         message: 'Missing required fields in the body$$$AS'
-      //     });
-      // }
+        console.log("iam sachin ")
+          return reply.status(400).send({
+              error: 'Bad Request',
+              message: 'Missing required fields in the body when creating an event',
+          });
+      }
       
       const { error :validateError} = EMcreateEventValidation.validate(request.body);
 
       if (validateError) {
         return reply.status(400).send({
           error: 'Bad Request',
-          message: 'Validation failed body requirement not matching',
+          message: 'Validation failed body requirement not matching when creating an event',
         });
       }
 
 
 
       //roleauth(['admin']
-      await auth(request, reply)
-
-      await roleauth(['admin'])(request, reply)
+     
 
     }
 

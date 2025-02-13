@@ -18,21 +18,6 @@ export const createEvent = async (request, reply) => {
 
     let { eventname, eventdate, eventlocation, amountrange, eventtime, totalseats, availableseats, bookedseats } = request.body;
 
-    
-    // const requiredFields = ['eventname', 'eventdate', 'eventlocation', 'amountrange','eventtime','totalseats','availableseats','bookedseats'];
-    // const missingFields = requiredFields.filter(field => !request.body[field]);
-    // // Done
-    // if (missingFields.length > 0) {
-    //     console.log("Missing required fields:", missingFields);  // Debugging missing fields
-    //     return reply.status(400).send({
-    //         error: 'Bad Request',
-    //         message: 'Missing required fields in the body',
-    //     });
-    // }
-
-
-
-
 
     const eventDate = new Date(eventdate);
     const currentDate = new Date();
@@ -64,11 +49,11 @@ export const createEvent = async (request, reply) => {
         // reply.send(event);
         const savedEvent = await event.save();
         console.log("data saved to the database first time for this entry");
-        return reply.send(savedEvent);
+        return reply.status(200).send(savedEvent);
 
 
     } catch (err) {
-        reply.status(400).send({ error: err.message })
+        reply.status(400).send({ error: 'Database save failed,Error creating the Event'})
     }
 
 };

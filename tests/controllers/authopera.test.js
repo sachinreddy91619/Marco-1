@@ -334,54 +334,6 @@ describe("testing the login functionality", () => {
 
 
 
-
-
-
-
-
-// // Test Case 3: Successful login (correct username and password)
-
-describe("testing the login functionality", () => {
-    test('should respond with a status code of 200 for successfully logged in user', async () => {
-
-        Users.findOne.mockResolvedValue({
-            _id: '1',
-            username: 'username',
-            password: 'hasedpassword',
-            role: 'user'
-        });
-
-        bcrypt.compare = jest.fn().mockResolvedValue(true);
-
-        // jest.mock('jsonwebtoken'); // Mocking the entire jsonwebtoken module
-
-        // jwt.sign = jest.fn().mockReturnValue('mockedToken');
-
-        const mockToken = 'mockedToken.mockedToken.mockedToken';
-        jwt.sign = jest.fn().mockReturnValue(mockToken);
-
-        Logs.findOne = jest.fn().mockResolvedValue(null); // Simulating no existing log
-        Logs.prototype.save = jest.fn().mockResolvedValue(true);
-
-
-        const bodydata = { username: 'username', password: 'pass1Q@1Aword' };
-
-        const response = await app.inject({
-            method: 'POST',
-            url: '/auth/login',
-            payload: bodydata
-        })
-
-        expect(response.statusCode).toBe(200);
-        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'))
-        expect(JSON.parse(response.body)).toEqual({
-            token: 'mockedToken.mockedToken.mockedToken'
-        });
-
-    });
-});
-
-
 // Test-case-4:  Testing while login , validation for missing fields in the body
 describe("testing the validation for missing fields in the body if any of username, password ", () => {
     test("should respond with a status code of 400 if any field is invalid", async () => {
@@ -510,6 +462,50 @@ describe("testing when an error occurs during login", () => {
 })
 
 
+
+// // Test Case 3: Successful login (correct username and password)
+
+describe("testing the login functionality", () => {
+    test('should respond with a status code of 200 for successfully logged in user', async () => {
+
+        Users.findOne.mockResolvedValue({
+            _id: '1',
+            username: 'username',
+            password: 'hasedpassword',
+            role: 'user'
+        });
+
+        bcrypt.compare = jest.fn().mockResolvedValue(true);
+
+        // jest.mock('jsonwebtoken'); // Mocking the entire jsonwebtoken module
+
+        // jwt.sign = jest.fn().mockReturnValue('mockedToken');
+
+        const mockToken = 'mockedToken.mockedToken.mockedToken';
+        jwt.sign = jest.fn().mockReturnValue(mockToken);
+
+        Logs.findOne = jest.fn().mockResolvedValue(null); // Simulating no existing log
+        Logs.prototype.save = jest.fn().mockResolvedValue(true);
+
+
+        const bodydata = { username: 'username', password: 'pass1Q@1Aword' };
+
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/login',
+            payload: bodydata
+        })
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'))
+        expect(JSON.parse(response.body)).toEqual({
+            token: 'mockedToken.mockedToken.mockedToken'
+        });
+
+    });
+});
+
+
 // // ++++++++++++++++++++++++++++++++++++++++++++ TEST CASES FOR THE LOGOUT FUNCTIONALITY +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -518,57 +514,57 @@ describe("testing when an error occurs during login", () => {
 //catch block logout functionality :
 
 
-describe("Testing logout functionality when an error occurs", () => {
+// describe("Testing logout functionality when an error occurs", () => {
 
-    beforeEach(() => {
+//     beforeEach(() => {
 
-        jest.doMock('../../middleware/authmiddle.js', () => jest.fn((req, res, next) => next()));
+//         jest.doMock('../../middleware/authmiddle.js', () => jest.fn((req, res, next) => next()));
 
-        jwt.verify.mockImplementation(() => ({ id: 'user123' }));
-    });
+//         jwt.verify.mockImplementation(() => ({ id: 'user123' }));
+//     });
 
-    afterEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
-    });
-
-
+//     afterEach(() => {
+//         jest.resetModules();
+//         jest.clearAllMocks();
+//     });
 
 
 
 
-    test("should return 500 status when Logs.findOne throws an error", async () => {
 
 
-        const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC);
-        // jest.mock('../../middleware/authmiddle.js', () => jest.fn((req, res, next) => next()));
+//     test("should return 500 status when Logs.findOne throws an error", async () => {
 
-        // // Create a valid token for a valid user
-        // jwt.verify.mockImplementation(() => {
-        //     return { id: 'user123' }; // Fake decoded token
-        // });
 
-        Logs.findOne.mockRejectedValue(new Error('Database error'));
+//         const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC);
+//         // jest.mock('../../middleware/authmiddle.js', () => jest.fn((req, res, next) => next()));
 
-        // Simulate the logout request with the valid Authorization header
-        const response = await app.inject({
-            method: 'POST',
-            url: '/auth/logout',
-            headers: {
-                Authorization: `Bearer ${mockToken}`,  // Pass the token as Authorization header
-            },
-        });
+//         // // Create a valid token for a valid user
+//         // jwt.verify.mockImplementation(() => {
+//         //     return { id: 'user123' }; // Fake decoded token
+//         // });
 
-        // Assert that the response status is 500 (Internal Server Error)
-        expect(response.statusCode).toBe(500);
-        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+//         Logs.findOne.mockRejectedValue(new Error('Database error'));
 
-        const responseBody = JSON.parse(response.body);
+//         // Simulate the logout request with the valid Authorization header
+//         const response = await app.inject({
+//             method: 'POST',
+//             url: '/auth/logout',
+//             headers: {
+//                 Authorization: `Bearer ${mockToken}`,  // Pass the token as Authorization header
+//             },
+//         });
 
-        // Assert that the error message is correct
-        expect(responseBody.error).toBe('error while logout in the current-user');
-    });
-});
+//         // Assert that the response status is 500 (Internal Server Error)
+//         expect(response.statusCode).toBe(500);
+//         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+//         const responseBody = JSON.parse(response.body);
+
+//         // Assert that the error message is correct
+//         expect(responseBody.error).toBe('error while logout in the current-user');
+//     });
+// });
 
 
 
@@ -743,7 +739,7 @@ describe("Testing the successful logout functionality", () => {
         });
 
 
-        // expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
         const responseBody = JSON.parse(response.body);
         // Assert that the message is correct
