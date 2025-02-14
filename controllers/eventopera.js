@@ -120,8 +120,8 @@ export const getevent = async (request, reply) => {
         // }
 
 
-    } catch (err) {
-        reply.status(400).send({ error: err.message })
+    } catch (error) {
+        reply.status(400).send({ error:'Database failed while getting the events data,Error triggering the catch block' });
     }
 };
 

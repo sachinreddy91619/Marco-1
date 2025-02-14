@@ -18,29 +18,41 @@ const app=fastify({
        
        const EMbodyEditValidation = joi.object({
        
-      
-
            eventname:joi.string(),
            eventdate:joi.date(),
            eventlocation:joi.string(),
            amountrange:joi.number().min(1).strict(),
-           eventtime:joi.string()
+           eventtime: joi.string().pattern(/^([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)$/),
+
+        //    totalseats: joi.forbidden(),
+        //     availableseats: joi.forbidden(),
+        //    bookedseats: joi.forbidden(),
+
+           //eventtime:joi.string()
 
         //    totalseats:joi.number().min(10).strict(),
         //    availableseats:joi.number().strict(),
         //    bookedseats:joi.number().strict(),
+
+        ///////////////////////
+        
+            
+          
+           
+
+           
        
        })
 
 
-       const EMbodyUNEditValidation = joi.object({
+    //    const EMbodyUNEditValidation = joi.object({
         
         
-        // Ensure these fields cannot be updated
-        totalseats: joi.forbidden(),
-        availableseats: joi.forbidden(),
-        bookedseats: joi.forbidden(),
-      });
+    //     // Ensure these fields cannot be updated
+    //     totalseats: joi.forbidden(),
+    //     availableseats: joi.forbidden(),
+    //     bookedseats: joi.forbidden(),
+    //   });
 
 
 
@@ -66,7 +78,7 @@ const app=fastify({
        
            authorizationValidation,
            EMbodyEditValidation,
-           EMbodyUNEditValidation,
+        //    EMbodyUNEditValidation,
            usergivenparams
        
        };

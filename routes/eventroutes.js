@@ -16,6 +16,8 @@ import joi from 'joi';
 
 
 
+import AllHeader from '../validators/AllHeader.js';
+import Allparams from '../validators/Allparams.js';
 
 
 import EMcreateEventValidation from '../validators/EMcreateEvent.js';
@@ -52,10 +54,20 @@ async function eventRoutes(fastify, options) {
     
      preHandler: async (request, reply) => {
 
-      await auth(request, reply)
+    
+    
 
-      await roleauth(['admin'])(request, reply)
+      const { error: headerError } = AllHeader.validate({
+        authorization: request.headers['authorization'], // Accessing the header value
+      });
+      if (headerError) {
+        return reply.status(400).send({
+          error: 'Bad Request',
+          message: 'Validation failed in the header requirement not matching 123 123',
+        });
+      }
 
+     
 
       const {error:missingFieldsError}=EMcreateEventValidation.requiredFieldsValidation(request.body);
       console.log(request.body,"Iam doig good")
@@ -79,6 +91,10 @@ async function eventRoutes(fastify, options) {
         });
       }
 
+
+      await auth(request, reply)
+
+      await roleauth(['admin'])(request, reply)
 
 
       //roleauth(['admin']
@@ -111,6 +127,9 @@ async function eventRoutes(fastify, options) {
   fastify.get('/get', {
     preHandler: async (request, reply) => {
 
+
+      
+
       const { error } = EMgetEventsValidation.validate({
         authorization: request.headers['authorization'], // Accessing the header value
       });
@@ -134,6 +153,8 @@ async function eventRoutes(fastify, options) {
   fastify.get('/get/:id', {
     schema: getbyidEventSchema, preHandler: async (request, reply) => {
 
+      const {error:paramsError}=Allparams.validate(request.params);
+
       const { error } = EMgetbyidEventsValidation.validate({
         authorization: request.headers['authorization'], // Accessing the header value
       });
@@ -143,6 +164,14 @@ async function eventRoutes(fastify, options) {
           error: 'Bad Request',
           message: 'The authorization header is required, to get the events of the particular event manager based on the id',
         })
+      }
+
+      if(paramsError){
+
+        return reply.status(500).send({
+          error: 'Bad Request',
+          message: 'params.id should match pattern \"^[0-9a-fA-F]{24}$\"'
+        })        
       }
 
       await auth(request, reply)
@@ -222,16 +251,16 @@ async function eventRoutes(fastify, options) {
       }
 
 
-      const { error: BodyUneditError } = EMupdateValidation.EMbodyUNEditValidation.validate(request.body);
+      // const { error: BodyUneditError } = EMupdateValidation.EMbodyUNEditValidation.validate(request.body);
 
-      if (BodyUneditError) {
+      // if (BodyUneditError) {
 
-        return reply.status(400).send({
-          error: 'Bad Request',
-          message: 'The body is not matching has per  requirements, "totalseats", "availableseats", and "bookedseats" cannot be updated'
-        })
+      //   return reply.status(400).send({
+      //     error: 'Bad Request',
+      //     message: 'The body is not matching has per  requirements, "totalseats", "availableseats", and "bookedseats" cannot be updated'
+      //   })
 
-      }
+      // }
 
 
 

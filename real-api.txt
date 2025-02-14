@@ -23,6 +23,22 @@ iam getting the latest  or last user given location events only , when i new use
 
 ..>  await app.emit('login',userid);
 
+
+
+These tokens are validated, stored server-side (in-memory, relational database, or key-value stores like Redis), and linked to the client through a session ID returned to the frontend.
+
+Users are redirected back to the frontend with a session ID cookie
+
+This is the Backend For Frontend (BFF) pattern. acting as a proxy between the frontend and the backend, or being the backend itself. In this scenario, the frontend avoids handling authentication/authorization, sending requests to the backend which also auto-sends the session cookie. The backend handles the rest.
+
+
+
+
+
+
+
+
+
 {
     "username":"d",
     "password":"d123",
@@ -1330,16 +1346,152 @@ export default(request,reply,done)=>{
 
 ==============================================>
 
-These tokens are validated, stored server-side (in-memory, relational database, or key-value stores like Redis), and linked to the client through a session ID returned to the frontend.
-
-Users are redirected back to the frontend with a session ID cookie
-
-This is the Backend For Frontend (BFF) pattern. acting as a proxy between the frontend and the backend, or being the backend itself. In this scenario, the frontend avoids handling authentication/authorization, sending requests to the backend which also auto-sends the session cookie. The backend handles the rest.
 
 
 
 
+...........................................................................>...............................................>...............................................>...............................................>...............................................>...............................................>...............................................>...............................................>...............................................>..................>
+========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>
+========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>
+========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>
+========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>
+========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>========================>
+========================>========================>========================>========
 
+
+
+describe("testing the catch block errors for the Get method ", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        Event.find = jest.fn(); 
+        EventLoc.findOne = jest.fn();
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        // Events.prototype.save = jest.fn().mockResolvedValue([{
+           
+    });
+    
+        test.each([
+            [
+                () => {
+                    Event.find.mockRejectedValueOnce(new Error("Database error"));
+                },
+                "Event.find throws error",
+            ],
+            [
+                () => {
+                    EventLoc.findOne.mockRejectedValueOnce(new Error("Database error"));
+                },
+                "EventLoc.findOne throws error",
+            ],
+            [
+                () => {
+                    EventLoc.findOne.mockResolvedValueOnce({ eventneedlocation: "Test Location" });
+                    Event.find.mockRejectedValueOnce(new Error("Database error"));
+                },
+                "Event.find fails after EventLoc.findOne resolves",
+            ],
+        ])
+    
+    ("should respond with a status code of 400 if the working for the  admin  succefully or not ", async (mockFunction,des) => {
+     
+        await mockFunction();
+    
+            const response = await app.inject({
+                method: 'GET',
+                url: '/event/get',
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+            const responseBody = JSON.parse(response.body);
+            expect(responseBody).toEqual({error: "Database failed while getting the events data,Error triggering the catch block" });   
+       
+    });
+    afterAll(async () => {
+        await app.close(); 
+});
+
+});
+
+
+========================================================================================================================>
+=========================================================================>
+
+// test case for the catch block errors for both the admin and user  when EventLoc model fails  
+describe("testing the catch block errors for the Get method ", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        EventLoc.findOne = jest.fn();
+       
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        // Events.prototype.save = jest.fn().mockResolvedValue([{
+           
+    });
+    
+        test("should respond with a status code of 400 if the working for the  admin  succefully or not ", async () => {
+     
+      
+        EventLoc.findOne.mockRejectedValueOnce(new Error("Database error"));
+    
+            const response = await app.inject({
+                method: 'GET',
+                url: '/event/get',
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+            const responseBody = JSON.parse(response.body);
+            expect(responseBody).toEqual({error: "Database failed while getting the events data,Error triggering the catch block" });   
+       
+    });
+    afterAll(async () => {
+        await app.close(); 
+});
+
+});
+
+=============================================================================>
+====================================================================================================>
 
 
 
