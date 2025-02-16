@@ -1493,8 +1493,31 @@ describe("testing the catch block errors for the Get method ", () => {
 =============================================================================>
 ====================================================================================================>
 
+this is for the middleware validation in the logout validation logic :
+
+    
+
+        //jwt.sign = jest.fn().mockReturnValue(mockToken);
+
+        //    jwt.verify.mockImplementation((token, Process, callback) => {
+
+        //                  callback(null, { id: 'mockUserId', role: 'admin' });
+        //           });
+
+        //           Logs.findOne.mockResolvedValue({
+        //                      UserToken: mockToken,
+        //                          UserId: 'mockUserId',
+        //                      });
 
 
+        // Logs.findOne = jest.fn().mockResolvedValue(true); // Simulating no existing log
+        // Logs.prototype.save = jest.fn().mockResolvedValue(true);
+
+
+====================================================================================================>
+====================================================================================================>
+====================================================================================================>
+====================================================================================================>
 
 
 

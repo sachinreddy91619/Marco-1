@@ -704,30 +704,10 @@ describe("Testing the successful logout functionality", () => {
             save: jest.fn().mockResolvedValue(true)
         };
 
-        // const UserToken = 'mockedToken.mockedToken.mockedToken';
 
         Logs.findOne.mockResolvedValue(mockUserLog);
 
-        //=========>
-
-
-
-        //jwt.sign = jest.fn().mockReturnValue(mockToken);
-
-        //    jwt.verify.mockImplementation((token, Process, callback) => {
-
-        //                  callback(null, { id: 'mockUserId', role: 'admin' });
-        //           });
-
-        //           Logs.findOne.mockResolvedValue({
-        //                      UserToken: mockToken,
-        //                          UserId: 'mockUserId',
-        //                      });
-
-
-        // Logs.findOne = jest.fn().mockResolvedValue(true); // Simulating no existing log
-        // Logs.prototype.save = jest.fn().mockResolvedValue(true);
-
+        
 
         // Simulate the logout request with the Authorization header
         const response = await app.inject({

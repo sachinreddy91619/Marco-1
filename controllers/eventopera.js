@@ -53,7 +53,7 @@ export const createEvent = async (request, reply) => {
 
 
     } catch (err) {
-        reply.status(400).send({ error: 'Database save failed,Error creating the Event'})
+        reply.status(400).send({ error: 'Database save failed,Error creating the Event' })
     }
 
 };
@@ -80,8 +80,8 @@ export const getevent = async (request, reply) => {
             const userlocation = await EventLoc.findOne({
                 userId: request.user.id
             })
-            .sort({ createdAt: -1 }) // Sort by
-            .limit(1);
+                .sort({ createdAt: -1 }) // Sort by
+                .limit(1);
 
 
             console.log(userlocation, "sachin sachin sachin sachin sachin")
@@ -121,7 +121,7 @@ export const getevent = async (request, reply) => {
 
 
     } catch (error) {
-        reply.status(400).send({ error:'Database failed while getting the events data,Error triggering the catch block' });
+        reply.status(400).send({ error: 'Database failed while getting the events data,Error triggering the catch block' });
     }
 };
 
@@ -191,10 +191,10 @@ export const updateevent = async (request, reply) => {
             { $set: updateData }, { new: true, runValidators: true });
 
         if (!updatedEvent) {
-            return reply.status(400).send({ error: 'Event updated failed found' })
+            return reply.status(400).send({ error: 'Event updating failed !This is what i found' })
         }
 
-        reply.send(updatedEvent);
+        reply.status(200).send(updatedEvent);
 
     } catch (err) {
         reply.status(400).send({ error: err.message });
@@ -204,35 +204,30 @@ export const updateevent = async (request, reply) => {
 
 
 // This is the route for deleting an event
-export const eventdelete = async (request, reply) => {
 
 
+
+// This is the route for deleting an booking
+export const deleteevent = async (request, reply) => {
     try {
 
-        const event = await EMB.findById(request.params.id);
-
+        const event = await Event.findById(request.params.id);
         if (!event || event.userId.toString() !== request.user.id) {
-            return reply.status(400).send({ error: 'event not found' });
+            return reply.status(400).send({ error: 'event not found' })
         }
-
-        const d = event.NoOfSeatsBooking;
-
-        const event1 = await Event.findByIdAndUpdate(event.eventid);
-        event1.bookedseats = event1.bookedseats - d;
-        event1.availableseats = event1.totalseats - event1.bookedseats;
-
-        await event1.save();
-
-
         await event.deleteOne();
-        reply.send({ message: 'event deleted successfully' });
 
-    }
+        reply.status(200).send({ message: 'event deleted successfully' });
 
-    catch (err) {
+
+
+    } catch (err) {
         reply.status(400).send({ error: err.message });
+
     }
-}
+};
+
+
 
 
 
@@ -472,23 +467,38 @@ export const booking = async (request, reply) => {
 }
 
 
-// This is the route for deleting an booking
-export const deleteevent = async (request, reply) => {
+
+
+
+
+export const eventdelete = async (request, reply) => {
+
+
     try {
 
-        const event = await Event.findById(request.params.id);
-        if (!event || event.userId.toString() !== request.user.id) {
-            return reply.status(400).send({ error: 'event not found' })
-        }
-        await event.deleteOne();
+        const event = await EMB.findById(request.params.id);
 
+        if (!event || event.userId.toString() !== request.user.id) {
+            return reply.status(400).send({ error: 'event not found' });
+        }
+
+        const d = event.NoOfSeatsBooking;
+
+        const event1 = await Event.findByIdAndUpdate(event.eventid);
+        event1.bookedseats = event1.bookedseats - d;
+        event1.availableseats = event1.totalseats - event1.bookedseats;
+
+        await event1.save();
+
+
+        await event.deleteOne();
         reply.send({ message: 'event deleted successfully' });
 
-
-
-    } catch (err) {
-        reply.status(400).send({ error: err.message });
-
     }
-};
+
+    catch (err) {
+        reply.status(400).send({ error: err.message });
+    }
+}
+
 

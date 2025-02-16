@@ -341,7 +341,7 @@ describe("testing wheather the Event is succefully created or not ", () => {
             save: jest.fn().mockResolvedValue(true)
         };
 
-        Logs.findOne.mockResolvedValue(mockUserLog);
+         Logs.findOne.mockResolvedValue(mockUserLog);
 
         Events.prototype.save = jest.fn().mockResolvedValue({
             _id: "log123",
@@ -757,18 +757,18 @@ describe("Event Retrieval API - Get Event by ID", () => {
 
         mockToken = 'mockedToken.mockedToken.mockedToken';
         
-        // jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
 
-        // mockUserLog = {
-        //     _id: 'log123',
-        //     UserId: 'mockUserId',
-        //     logintime: new Date(),
-        //     logouttime: null,
-        //     UserToken: mockToken,
-        //     save: jest.fn().mockResolvedValue(true)
-        // };
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
 
-        // Logs.findOne.mockResolvedValue(mockUserLog);
+        Logs.findOne.mockResolvedValue(mockUserLog);
 
         // Mock Event data do not needed but keep it 
         Events.find.mockResolvedValue([{
@@ -863,18 +863,18 @@ describe("Event Not Found Error test case - Get Event by ID", () => {
 
         mockToken = 'mockedToken.mockedToken.mockedToken';
         
-        // jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
 
-        // mockUserLog = {
-        //     _id: 'log123',
-        //     UserId: 'mockUserId',
-        //     logintime: new Date(),
-        //     logouttime: null,
-        //     UserToken: mockToken,
-        //     save: jest.fn().mockResolvedValue(true)
-        // };
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
 
-        // Logs.findOne.mockResolvedValue(mockUserLog);
+        Logs.findOne.mockResolvedValue(mockUserLog);
 
         // Mock Event data do not needed but keep it 
         Events.find.mockResolvedValue([{
@@ -940,6 +940,8 @@ describe("Catch block  test case Error  - Get Event by ID", () => {
  
     let validEventId;
 
+    let  mockUserLog;
+
   
 
 
@@ -950,7 +952,18 @@ describe("Catch block  test case Error  - Get Event by ID", () => {
         validEventId = "67ab179b5ae8f11485a9bd35"; // Valid Event ID but not in the data-base
 
         mockToken = 'mockedToken.mockedToken.mockedToken';
-        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
         
         // Mock Event data do not needed but keep it 
         Events.find.mockResolvedValue([{
@@ -1017,10 +1030,24 @@ describe("Catch block  test case Error  - Get Event by ID", () => {
 
 describe("Event Updation Creation API - Header Validation checking for the header is in correct format or not for the Update the event  BY ID route", () => {
     let mockToken;
-   
+   let  mockUserLog
 
     beforeEach(() => {
         mockToken = 'mockedToken.mockedToken.mockedToken';
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        
         
        
     });
@@ -1059,9 +1086,25 @@ describe("Event Updation Creation API - Header Validation checking for the heade
 
 describe("Event Updation API - Params  Validation checking for the params in is in correct format or not for the UpdateT BY ID route", () => {
     let mockToken;
+
+    let mockUserLog;
    
     beforeEach(() => {
         mockToken = 'mockedToken.mockedToken.mockedToken';
+
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+        
      });
 
     test("should return 400 if params validation is not in correct format:", async () => {
@@ -1124,6 +1167,22 @@ describe("testing the validation of event fields", () => {
         };
 
         Logs.findOne.mockResolvedValue(mockUserLog);
+
+        Events.findById.mockResolvedValue({
+
+            _id: "67ab179b5ae8f11485a9bd35",
+            amountrange: 10,
+            eventname: "Event F",
+            eventdate: "2027-02-10T00:00:00.000Z",
+            eventlocation: "location f",
+            eventtime: "15:30:30",
+            totalseats: 100,
+            availableseats: 100,
+            bookedseats: 0,
+            userId: "mockUserId",
+            __v: 0
+        })
+       
         
        
     });
@@ -1131,32 +1190,25 @@ describe("testing the validation of event fields", () => {
         // Test data with invalid field formats
         const bodydata = [
             { eventname:123},
-            {eventdate: "1200:1:1"},
+        {eventdate: "78:90:90"},
             {eventlocation: 33545},
             {amountrange: 0},
-            {eventtime: "10:00:10"},
-
             { eventname: "Event A", eventdate: "invalid-date", eventlocation: "Location A", amountrange: 100, eventtime: "10:00:10"}, // Invalid date format
-            { eventname: "Event B", eventdate: "2025-03-15", eventlocation: "Location B", amountrange: "invalid-range", eventtime: "15:00:10" }, // Invalid amountrange (should be a number)
-            { eventname: "Event C", eventdate: "2025-06-10", eventlocation: "Location C", amountrange: 150, eventtime: "invalid-time" }, // Invalid eventtime format
-            { eventname: "Event D", eventdate: "2025-07-25", eventlocation: "Location D", amountrange: 50, eventtime: "12:00:12"}, // Invalid totalseats (should be >= 10)
-    
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: 50}, // Invalid availableseats (should not be negative)
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 0, eventtime: "18:00",  availableseats: -10, bookedseats: 10 }, // Invalid amountrange  should be min 1
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00",  bookedseats: 10 },
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: "50", eventtime: "18:00", totalseats: 50, availableseats: -10, bookedseats: 10 },
-
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00:00", totalseats: 50, availableseats: 10, bookedseats: 10 },
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00:00", totalseats: 50, availableseats: 10, bookedseats: 10 } ,
-            { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00:10", totalseats: 50, availableseats: 10, bookedseats: 10 }     
-
-
+            { eventname: "Event B", eventlocation: "Location B", amountrange: "invalid-range", eventtime: "15:00:10" }, // Invalid amountrange (should be a number)
+            { eventname: "Event C", eventlocation: "Location C", amountrange: 150, eventtime: "invalid-time" }, // Invalid eventtime format
+            { eventname: "Event E", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: 50}, // Invalid availableseats (should not be negative)
+            { eventname: "Event E", eventlocation: "Location E", amountrange: 0, eventtime: "18:00",  availableseats: -10, bookedseats: 10 }, // Invalid amountrange  should be min 1
+            { eventname: "Event E", eventlocation: "Location E", amountrange: 50, eventtime: "18:00",  bookedseats: 10 },
+            { eventname: "Event E", eventlocation: "Location E", amountrange: "50", eventtime: "18:00", totalseats: 50, availableseats: -10, bookedseats: 10 },
+            { eventname: "Event E", eventlocation: "Location E", amountrange: 50, eventtime: "18:00:00", totalseats: 50, availableseats: 10, bookedseats: 10 },
+            { eventname: "Event E", eventlocation: "Location E", amountrange: 50, eventtime: "18:00:00", totalseats: 50, availableseats: 10, bookedseats: 10 } ,
+            { eventname: "Event E", eventlocation: "Location E", amountrange: 50, eventtime: "18:00:10", totalseats: 50, availableseats: 10, bookedseats: 10 }     
         ];
 
         for (let i = 0; i < bodydata.length; i++) {
             const response = await app.inject({
                 method: 'PUT',
-                url: '/event/update/67ab179b5ae8f11485a6bd35',
+                url: '/event/update/67ab179b5ae8f11485a9bd35',
                 payload: bodydata[i],
 
                 headers: {
@@ -1177,6 +1229,743 @@ describe("testing the validation of event fields", () => {
 
   
 });
+
+
+
+describe("testing wheather the date is in the future or not  while updating the events date", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+    });
+    test("should respond with a status code of 400 if date is not in the future ", async () => {
+        
+    
+          
+       const bodydata= { eventname: "Event B", 
+        eventdate: "2012-02-10", eventlocation: "Location B", amountrange: 10, eventtime: "15:30:24"}
+            
+
+        const eventDateObj = new Date(bodydata.eventdate);
+        const currentDate = new Date();
+
+        if (eventDateObj < currentDate) {
+            console.log("you provided the date has past date so check it , thats why you are gettin the 400 error ")
+
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/event/update/67ab179b5ae8f11485a9bd35',
+                payload: bodydata,
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+            expect(responseBody.error).toBe('Bad Request');
+            expect(responseBody.message).toMatch('Event date must be in the future.');
+        }
+        else{
+            console.log(" the event date is in the future ! so it is ok")
+        }
+    });
+
+
+
+
+})
+
+
+
+//// ===================================================== >
+
+
+
+describe("testing wheather the given id event is present in the events model or not while updating the events date", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+    });
+    test("should respond with a status code of 400 if the event id is not in the events model.", async () => {
+        Events.findById = jest.fn().mockResolvedValue(null);
+
+    
+          
+       const bodydata= { eventname: "Event B", 
+        eventdate: "2027-02-10", eventlocation: "Location B", amountrange: 10, eventtime: "15:30:24"}
+            
+
+        
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/event/update/67ab179b5ae8f11485a9bd35',
+                payload: bodydata,
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+
+            expect(responseBody.error).toMatch('event not found');
+        
+    });
+
+})
+
+
+
+
+
+//// ===================================================== >
+
+
+
+describe("testing wheather the given id event is present in the events model or not while updating the events date", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        Events.findById = jest.fn().mockResolvedValue({
+            _id: '67ab179b5ae8f11485a9bd35',
+            userId: 'mockUserId',  // Ensure this matches request.user.id
+        });
+
+
+
+    });
+    test("should respond with a status code of 400 if the event id is not in the events model.", async () => {
+        Events.findByIdAndUpdate = jest.fn().mockResolvedValue(null);
+
+    
+          
+       const bodydata= { eventname: "Event B", 
+        eventdate: "2027-02-10", eventlocation: "Location B", amountrange: 10, eventtime: "15:30:24"}
+            
+
+        
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/event/update/67ab179b5ae8f11485a9bd35',
+                payload: bodydata,
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+
+            expect(responseBody.error).toMatch('Event updating failed !This is what i found');
+        
+    });
+
+})
+
+
+
+
+// for successfully event updation status code :200
+
+
+
+
+
+describe("testing wheather  the give  fields are updating correctly or not", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        
+  Events.findById.mockResolvedValue({
+
+    _id: "67ab179b5ae8f11485a9bd35",
+    amountrange: 10,
+    eventname: "Event F",
+    eventdate: "2027-02-10T00:00:00.000Z",
+    eventlocation: "location f",
+    eventtime: "15:30:30",
+    totalseats: 100,
+    availableseats: 100,
+    bookedseats: 0,
+    userId: "mockUserId",
+    __v: 0
+})
+
+
+
+
+
+    });
+    test("should respond with a status code of 200 if the event id is found and successfully updated.", async () => {
+        Events.findByIdAndUpdate = jest.fn().mockResolvedValue({
+            _id: "67ab179b5ae8f11485a9bd35",
+            amountrange: 100,
+            eventname: "AMC-KITE-FESTIVAL",
+            eventdate: "2025-02-10T00:00:00.000Z",
+            eventlocation: "AHMEDABAD",
+            eventtime: "15:30:24",
+            totalseats: 100,
+            availableseats: 100,
+            bookedseats: 0,
+            userId: "mockUserId",
+            __v: 0
+
+        });
+
+    
+          
+       const bodydata= { eventname: "AMC-KITE-FESTIVAL", 
+        eventdate: "2025-08-10", eventlocation: "AHMEDABAD", amountrange: 100, eventtime: "15:30:24"}
+            
+
+        
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/event/update/67ab179b5ae8f11485a9bd35',
+                payload: bodydata,
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(200);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+
+            expect(responseBody).toEqual({
+                "_id": "67ab179b5ae8f11485a9bd35",
+                "amountrange": 100,
+                "eventname": "AMC-KITE-FESTIVAL",
+                "eventdate": "2025-02-10T00:00:00.000Z",
+                "eventlocation": "AHMEDABAD",
+                "eventtime": "15:30:24",
+                "totalseats": 100,
+                "availableseats": 100,
+                "bookedseats": 0,
+                "userId": "mockUserId",
+                "__v": 0
+            })
+        
+    });
+
+})
+
+
+// catch block Error  test code for the while updation of the event here, 
+
+
+
+describe("testing catch block Error  the give  fields are updating correctly or not", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        
+  Events.findById.mockResolvedValue({
+
+    _id: "67ab179b5ae8f11485a9bd35",
+    amountrange: 10,
+    eventname: "Event F",
+    eventdate: "2027-02-10T00:00:00.000Z",
+    eventlocation: "location f",
+    eventtime: "15:30:30",
+    totalseats: 100,
+    availableseats: 100,
+    bookedseats: 0,
+    userId: "mockUserId",
+    __v: 0
+})
+
+
+
+
+
+    });
+    test("should respond with a status code of 400 if the catch block error raised.", async () => {
+        // Events.findByIdAndUpdate = jest.fn().mockResolvedValue(new Error("Database Connection Error"));
+
+        Events.findByIdAndUpdate.mockRejectedValueOnce(new Error("Database Connection Error"));
+
+    
+          
+       const bodydata= { eventname: "AMC-KITE-FESTIVAL", 
+        eventdate: "2025-08-10", eventlocation: "AHMEDABAD", eventtime: "15:30:24"}
+            
+
+        
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/event/update/67ab179b5ae8f11485a9bd35',
+                payload: bodydata,
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+
+            expect(responseBody.error).toEqual("Database Connection Error"
+               
+            )
+        
+    });
+
+})
+
+
+
+/// DELETE TEST CASE EVENT MANAGER :
+
+
+
+describe("Event deletion  Creation API - Header Validation checking for the header is in correct format or not for the delete the event  BY ID route", () => {
+    let mockToken;
+   let  mockUserLog
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        
+        
+       
+    });
+
+    test("should return 400 if header validation is not in correct format while deletion of the event :", async () => {
+        
+            const invalidHeadersTestCases = [
+                {}, // No Authorization header
+                { Authorization: "" }, // Empty Authorization
+                { Authorization: "Bearer" }, // Missing token
+                { Authorization: "Bearer " }, // Missing token after space
+                { Authorization: "Bearer.invalid.token" }, // Invalid format
+                { Authorization: "RandomToken 12345" }, // Wrong prefix
+                { Authorization: "Bearer12345" }, // No space after Bearer
+                { Authorization: "Bearer mockedToken" }, // Only one part of JWT
+            ];
+            
+        for (let i = 0; i < invalidHeadersTestCases.length; i++) {
+            const response = await app.inject({
+                method: 'DELETE',
+                url: '/event/delete/67ab179b5ae8f11485a9bd35',
+              
+                headers: invalidHeadersTestCases[i]
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+            const responseBody = JSON.parse(response.body);
+            expect(responseBody.error).toBe('Bad Request');
+            expect(responseBody.message).toMatch('The authorization header is required, to delete the events of the particular event manager');
+        }
+    });
+});
+
+
+
+
+
+describe("Event deletion API - Params  Validation checking for the params in is in correct format or not for the UpdateT BY ID route", () => {
+    let mockToken;
+
+    let mockUserLog;
+   
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+        
+     });
+
+    test("should return 400 if params validation is not in correct format:", async () => {
+        
+        const invalidParamsTestCases = [
+            "", // Empty ID
+            "123", // Too short
+            "invalid-id", // Non-hex characters
+            "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
+            "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
+            "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
+        ];
+            
+        for (let i = 0; i < invalidParamsTestCases.length; i++) {
+            const response = await app.inject({
+                method: 'DELETE',
+                url: `/event/delete/${invalidParamsTestCases[i]}`,
+              
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+            const responseBody = JSON.parse(response.body);
+       
+
+
+             expect(responseBody.error).toBe('Bad Request');
+          //  expect(responseBody.message).toMatch('The authorizati
+            expect(responseBody.message).toMatch('The id is required, to delete the events of the particular event manager');
+        }
+    });
+});
+
+
+
+
+
+describe("testing wheather the given id event is present in the events model or not while deleting the event from the events model", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+    });
+    test("should respond with a status code of 400 if the event id is not in the events model while deletion.", async () => {
+        Events.findById = jest.fn().mockResolvedValue(null);
+
+    
+          
+      
+
+        
+            const response = await app.inject({
+                method: 'DELETE',
+                url: '/event/delete/67ab179b5ae8f11485a9bd35',
+              
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+
+            expect(responseBody.error).toMatch('event not found');
+        
+    });
+
+})
+
+
+
+
+describe("testing wheather the given id event is present in the events model and deleting the event from the events model is successfully ", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+    });
+
+    const mockEvent = {
+        _id: "67ab179b5ae8f11485a9bd35",
+        amountrange: 10,
+        eventname: "Event F",
+        eventdate: "2027-02-10T00:00:00.000Z",
+        eventlocation: "location f",
+        eventtime: "15:30:30",
+        totalseats: 100,
+        availableseats: 100,
+        bookedseats: 0,
+        userId: "mockUserId",
+        __v: 0,
+        deleteOne: jest.fn().mockResolvedValue(true) 
+    };
+
+    // Ensure Events.findById returns mockEvent
+    Events.findById = jest.fn().mockResolvedValue(mockEvent);
+    
+
+    test("should respond with a status code of 400 if the event id is present in the events model  and deletion is successfully.", async () => {
+
+        
+            const response = await app.inject({
+                method: 'DELETE',
+                url: '/event/delete/67ab179b5ae8f11485a9bd35',
+              
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+            const event = await Events.findById("67ab179b5ae8f11485a9bd35");
+
+            // expect(Events.findById).toHaveBeenCalledWith("67ab179b5ae8f11485a9bd35");
+             expect(Events.findById).toHaveBeenCalledTimes(0);
+
+
+             
+            expect(Events.findById).toHaveBeenCalledWith("67ab179b5ae8f11485a9bd35");
+
+            expect(mockEvent.deleteOne).toHaveBeenCalledTimes(1);
+    
+
+            expect(response.statusCode).toBe(200);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+            const responseBody = JSON.parse(response.body);
+            expect(responseBody).toHaveProperty('message', 'event deleted successfully');
+        
+    });
+
+})
+
+
+
+//catch block Error  test code for the while deletion of the event here, 
+
+
+
+describe("testing catch block Error  while the give  fields are deleting correctly or not", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        
+  Events.findById.mockResolvedValue({
+
+    _id: "67ab179b5ae8f11485a9bd35",
+    amountrange: 10,
+    eventname: "Event F",
+    eventdate: "2027-02-10T00:00:00.000Z",
+    eventlocation: "location f",
+    eventtime: "15:30:30",
+    totalseats: 100,
+    availableseats: 100,
+    bookedseats: 0,
+    userId: "mockUserId",
+    __v: 0
+})
+
+
+
+
+
+    });
+    test("should respond with a status code of 400 if the catch block error raised.", async () => {
+        // Events.findByIdAndUpdate = jest.fn().mockResolvedValue(new Error("Database Connection Error"));
+
+        Events.findById.mockRejectedValueOnce(new Error("Database Connection Error while deletion of the event"));
+
+    
+          
+       
+            
+
+        
+            const response = await app.inject({
+                method: 'DELETE',
+                url: '/event/delete/67ab179b5ae8f11485a9bd35',
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                }
+            });
+        
+
+            // When any field is invalid, it should return 400
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+
+            const responseBody = JSON.parse(response.body);
+
+            expect(responseBody.error).toEqual("Database Connection Error while deletion of the event"
+               
+            )
+        
+    });
+
+})
+
+
+
+
+
+
+
+
+
+
 
 
 
