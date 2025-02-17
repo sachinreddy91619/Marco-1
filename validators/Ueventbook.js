@@ -23,7 +23,7 @@ const authorizationValidation = joi.object({
 
 const userNoOfSeatsValidation = joi.object({
 
-    NoOfSeatsBooking: joi.number().min(1).required(),
+    NoOfSeatsBooking: joi.number().min(1).required().strict()
 
 })
 

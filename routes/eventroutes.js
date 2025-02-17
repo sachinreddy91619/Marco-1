@@ -328,7 +328,7 @@ async function eventRoutes(fastify, options) {
 
 
       async (request, reply) => {
-        await auth(request, reply)
+       
         console.log("user authenticated for giveing the location and GOing to NEXT ")
 
         const { error: authError } = UlocValidation.authorizationValidation.validate({
@@ -352,13 +352,8 @@ async function eventRoutes(fastify, options) {
             error: 'Bad Request',
             message: 'The body is not matching has per  requirements, to provide the location of the user'
           })
-
         }
-
-
-
-
-
+        await auth(request, reply)
       }
   }, loc);
 
@@ -391,8 +386,8 @@ async function eventRoutes(fastify, options) {
 
           return reply.status(400).send({
 
-            error: 'BAD Request',
-            message: 'The  body is missing the required format'
+            error: 'Bad Request',
+            message: 'The  body is missing the required format while booking the event'
 
           })
         }
@@ -438,7 +433,7 @@ async function eventRoutes(fastify, options) {
 
         return reply.status(400).send({
           error: 'Bad Request',
-          message: 'The authorization header is required, to all of the bookings '
+          message: 'The authorization header is required, to all of the bookings'
         })
 
 
@@ -505,13 +500,6 @@ async function eventRoutes(fastify, options) {
           })
 
         }
-
-
-
-
-
-
-
 
         await auth(request, reply);
       }

@@ -28,10 +28,6 @@ role:{
     enum:['user','admin'],
     default:'user'
 }
-
-
-
-
 });
 
 userSchema.pre('save',async function(done){
@@ -41,7 +37,5 @@ userSchema.pre('save',async function(done){
     this.password=await bcrypt.hash(this.password,10);
     done();
 });
-
 //module.exports=mongoose.model('User',userSchema);
-
 export default mongoose.model('User',userSchema);

@@ -24,6 +24,8 @@ export default async (request, reply) => {
         const decoded = jwt.verify(token, process.env.SEC);
         const userId = decoded.id;
 
+        console.log("FROM MIDDLWARE HERE ",decoded);
+
         // Check if the user has an active session in the Logs model
         const userLogs = await Logs.findOne({ UserId: userId });
 

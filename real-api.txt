@@ -1520,6 +1520,21 @@ this is for the middleware validation in the logout validation logic :
 ====================================================================================================>
 
 
+ const event = await Event.findById(request.params.id);
+
+        if (!event || event.userId.toString() !== request.user.id) {
+            return reply.status(400).send({ error: 'event not found' })
+        }
+
+        //await event.deleteOne();
+
+        
+
+const event1 =await Event.findByIdAndDelete(request.params.id);
+
+if(event1){
+reply.status(200).send({ message: 'event deleted successfully' });
+}
 
 
 
@@ -1531,7 +1546,23 @@ this is for the middleware validation in the logout validation logic :
 
 
 
+//////////////////////////////////////:
 
+Events Model :
+
+    {
+        "_id": "67ab179b5ae8f11485a9bd35",
+        "amountrange": 500,
+        "eventname": "Gujarat-Sports-Event",
+        "eventdate": "2055-02-10T00:00:00.000Z",
+        "eventlocation": "amc",
+        "eventtime": "20:23:10",
+        "totalseats": 100,
+        "availableseats": 100,
+        "bookedseats": 0,
+        "userId": "67aadac50e0dff82bf8a756f",
+        "__v": 0
+    },
 
 
 

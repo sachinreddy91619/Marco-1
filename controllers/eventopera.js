@@ -211,13 +211,28 @@ export const updateevent = async (request, reply) => {
 export const deleteevent = async (request, reply) => {
     try {
 
-        const event = await Event.findById(request.params.id);
+        // const event = await Event.findById(request.params.id);
+        // if (!event || event.userId.toString() !== request.user.id) {
+        //     return reply.status(400).send({ error: 'event not found' })
+        // }
+
+        // await event.deleteOne();
+        // reply.status(200).send({ message: 'event deleted successfully' });
+
+        
+// const event1 =await Event.findByIdAndDelete(request.params.id);
+// if(event1){
+// reply.status(200).send({ message: 'event deleted successfully' });
+// }
+
+const event = await Event.findByIdAndDelete(request.params.id);
         if (!event || event.userId.toString() !== request.user.id) {
             return reply.status(400).send({ error: 'event not found' })
         }
-        await event.deleteOne();
 
-        reply.status(200).send({ message: 'event deleted successfully' });
+
+    
+    reply.status(200).send({ message: 'event deleted successfully' });
 
 
 
@@ -256,7 +271,7 @@ export const loc = async (request, reply) => {
         });
         console.log(request.user.id)
         await event.save();
-        reply.send(event);
+        reply.status(200).send({message:"location saved for this user"});
 
     } catch (err) {
         reply.status(400).send({ message: "getting the error while giving the event location" })
@@ -341,7 +356,7 @@ export const eventbook = async (request, reply) => {
 
         await com.save();
         console.log(com)
-        reply.send(com);
+        reply.status(200).send(com);
         //const event1=await User.findById(request.user.id);
 
 
@@ -368,7 +383,7 @@ export const getallbookings = async (request, reply) => {
         console.log(request.user.id, "sachin")
         const event = await EMB.find({ userId: request.user.id });
         // const event = await EMB.find({});
-        reply.send(event);
+        reply.status(200).send(event);
 
     }
     catch (err) {
