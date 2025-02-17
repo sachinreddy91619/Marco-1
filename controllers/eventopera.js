@@ -423,9 +423,9 @@ export const booking = async (request, reply) => {
 
         }
 
-        if (NoOfSeatsBooking === 0) {
-            return reply.status(400).send({ message: "no of seats cannot be zero" });
-        }
+        // if (NoOfSeatsBooking === 0) {
+        //     return reply.status(400).send({ message: "no of seats cannot be zero" });
+        // }
 
         if (NoOfSeatsBooking) {
 

@@ -473,7 +473,7 @@ async function eventRoutes(fastify, options) {
 
           return reply.status(400).send({
             error: 'Bad Request',
-            message: 'The authorization header is required, while booking the no of seats for the event'
+            message: 'The authorization header is required, while updating the bookings of  the no of seats for the event'
           })
         }
 

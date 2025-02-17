@@ -2374,7 +2374,15 @@ test("should calculate the correct amount and update event seats", async () => {
 
     // Validate the amount calculation and event update
     expect(response.statusCode).toBe(200);
+
+    console.log("Full Response:", response);
+
+    
+
     const responseBody = JSON.parse(response.body);
+
+
+    console.log("Response Body:", response.body);
   
     expect(responseBody).toEqual(
         
@@ -2387,8 +2395,8 @@ test("should calculate the correct amount and update event seats", async () => {
             eventtime: '15:30:30',
             eventManager: 'EventManagerUser',
             eventManagerEmail: 'eventmanager@example.com',
-            eventBookedBy: 'EventManagerUser',
-            email: 'eventmanager@example.com',
+            eventBookedBy: 'BookingUser',
+            email: 'bookinguser@example.com',
             NoOfSeatsBooking: 10,
             AmountNeedPay: 100,
             userId: mockBookingUser._id
@@ -2490,7 +2498,7 @@ describe("testing while user providing the location", () => {
         jest.clearAllMocks();
     });
     
-    test("should respond with a status code of 400 if any  error raised for invalid header while hetting all the booking   .", async () => {
+    test("should respond with a status code of 400 if any  error raised for invalid header while getting all the booking   .", async () => {
     
         const invalidHeadersTestCases = [
             {}, // No Authorization header
@@ -2596,7 +2604,7 @@ EMB.find.mockResolvedValue(data)
 
 
 
-test("Geting all the bookings of the user successfully :", async () => {
+test("Catch block Error while Geting all the bookings  :", async () => {
     const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
 
     // Mock save method for EMB
@@ -2624,7 +2632,7 @@ EMB.find.mockRejectedValue(new Error("data base error"))
 
 
 
-describe("testing while updating the  providing the l", () => {
+describe("testing while updating the  booking of a user", () => {
     let mockToken;
     let mockUserLog;
     beforeEach(() => {
@@ -2651,7 +2659,7 @@ describe("testing while updating the  providing the l", () => {
         jest.clearAllMocks();
     });
     
-    test("should respond with a status code of 400 if any  error raised for invalid header while hetting all the booking   .", async () => {
+    test("should respond with a status code of 400 if any  error raised for invalid header while updating the booking   .", async () => {
     
         const invalidHeadersTestCases = [
             {}, // No Authorization header
@@ -2669,7 +2677,7 @@ describe("testing while updating the  providing the l", () => {
 
                         const response = await app.inject({
                             method: 'PUT',
-                            url: '/event/bokkings/',
+                            url: '/event/bookings/67ab4d689ca224decd135353',
                          
                             headers: invalidHeadersTestCases[i]
                         });
@@ -2678,27 +2686,238 @@ describe("testing while updating the  providing the l", () => {
                     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
                     const responseBody = JSON.parse(response.body);
                     expect(responseBody.error).toBe('Bad Request');
-                    expect(responseBody.message).toEqual("The authorization header is required, while booking the no of seats for the event")
+                    expect(responseBody.message).toEqual("The authorization header is required, while updating the bookings of  the no of seats for the event")
 
             }
     });
 })
 
 
+test("should respond with a status code of 400 if any  error raised for invalid body validation while updating the event.", async () => {
+    
+    const mockToken="mockedToken.mockedToken.mockedToken"
+    
+    const bodydata = [
+        { NoOfSeatsBooking:"aa" }, 
+        { NoOfSeatsBooking:0 },      
+        { NoOfSeatsBooking:""},
+        { },   
+        //{ NoOfSeatsBooking:1 },              
+    ];
+        for (let i = 0; i < bodydata.length; i++) {
+
+                    const response = await app.inject({
+                        method: 'PUT',
+                        url: '/event/bookings/67ab4d689ca224decd135353',
+                        payload: bodydata[i],
+
+                        headers: {
+                'Authorization': `Bearer ${mockToken}` 
+            }
+                    });
+                // When any field is invalid, it should return 400
+                expect(response.statusCode).toBe(400);
+                expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+                const responseBody = JSON.parse(response.body);
+                expect(responseBody.error).toBe('Bad Request');
+                expect(responseBody.message).toEqual("The Body is not Matching has per the requirements, give correct body for updation")
+        }
+});
 
 
 
-test("should respond with a status code of 400 if any  error raised for invalid header while hetting all the booking   .", async () => {
+test("should respond with a status code of 400 if any  error raised for invalid body validation while updating the event.", async () => {
+    
+    const mockToken="mockedToken.mockedToken.mockedToken"
+    
+    const bodydata = [
+        { NoOfSeatsBooking:10 }, 
+                 
+    ];
+
+
+        const invalidParamsTestCases = [
+            "", // Empty ID
+            "123", // Too short
+            "invalid-id", // Non-hex characters
+            "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
+            "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
+            "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
+        ];
+            
+        for (let i = 0; i < invalidParamsTestCases.length; i++) {
+
+                    const response = await app.inject({
+                        method: 'PUT',
+                        url: `/event/bookings/${invalidParamsTestCases[i]}`,
+                        payload: bodydata[0],
+
+                        headers: {
+                'Authorization': `Bearer ${mockToken}` 
+            }
+                    });
+                // When any field is invalid, it should return 400
+                expect(response.statusCode).toBe(400);
+                expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+                const responseBody = JSON.parse(response.body);
+                expect(responseBody.error).toBe('Bad Request');
+                expect(responseBody.message).toEqual("The params is not Matching has per the requirements, give correct params id for updation")
+        }
+});
+
+
+
+
+test("should respond with a status code of 400 if any  error raised when event not found while updating the event.", async () => {
+    
+    const mockToken="mockedToken.mockedToken.mockedToken"
+
+    EMB.findByIdAndUpdate.mockResolvedValue(null)
+
+    const bodydata = [
+         
+        { NoOfSeatsBooking:10 },              
+    ];
+        
+
+                    const response = await app.inject({
+                        method: 'PUT',
+                        url: '/event/bookings/67ab4d689ca224decd135353',
+                        payload: bodydata[0],
+
+                        headers: {
+                'Authorization': `Bearer ${mockToken}` 
+                        }
+                    });
+                // When any field is invalid, it should return 400
+                expect(response.statusCode).toBe(400);
+                expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+                const responseBody = JSON.parse(response.body);
+           
+                expect(responseBody.error).toEqual("event not found here")
+        
+});
+
+test("should return an error if requested seats exceed available seats", async () => {
+    const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
+
+    EMB.findByIdAndUpdate.mockResolvedValue(true)
+
+
+    // Mock event data with only 5 available seats
+    const mockEvent = {
+        _id: "67ab179b5ae8f11485a9bd35",
+        amountrange: 10,
+        eventname: "Event F",
+        eventdate: "2027-02-10T00:00:00.000Z",
+        eventlocation: "location f",
+        eventtime: "15:30:30",
+        totalseats: 100,
+        availableseats: 5,  // Only 5 seats available
+        bookedseats: 0,
+        userId: "mockUser1Id",
+        __v: 0
+    };
+
+    // Mock `findByIdAndUpdate` to return the event
+    Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
+
+    // Request to book more seats than available (e.g., 10 seats)
+    const bodydata = { NoOfSeatsBooking: 10 };
+
+    const response = await app.inject({
+        method: 'PUT',
+        url: '/event/bookings/67ab179b5ae8f11485a9bd35',
+        payload: bodydata,
+        headers: { 'Authorization': `Bearer ${mockToken}` },
+    });
+
+    // Validate the response
+    expect(response.statusCode).toBe(400);
+    const responseBody = JSON.parse(response.body);
+
+    expect(responseBody.message).toEqual(
+        "maximum number of seats can be booked 5, so please reduce the number of seats"
+        
+);
+});
+
+
+
+
+
+
+test("should return an error if NoOfSeatsBooking is zero", async () => {
+    const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
+
+    // Mock event data
+    const mockEvent = {
+        _id: "67ab179b5ae8f11485a9bd35",
+        amountrange: 10,
+        eventname: "Event F",
+        eventdate: "2027-02-10T00:00:00.000Z",
+        eventlocation: "location f",
+        eventtime: "15:30:30",
+        totalseats: 100,
+        availableseats: 50,
+        bookedseats: 0,
+        userId: "mockUser1Id",
+        __v: 0
+    };
+
+    // Mock `findByIdAndUpdate` to return the event
+    Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
+
+    // Request with NoOfSeatsBooking = 0
+    const bodydata = { NoOfSeatsBooking: 0 };
+
+    const response = await app.inject({
+        method: 'PUT',
+        url: '/event/bookings/67ab179b5ae8f11485a9bd35',
+        payload: bodydata,
+        headers: { 'Authorization': `Bearer ${mockToken}` },
+    });
+
+   
+    expect(response.statusCode).toBe(400);
+
+    
+    let responseBody = JSON.parse(response.body);
+   
+       
+
+   
+    expect(responseBody).toEqual({
+        message: "no of seats cannot be zero"
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+test("should respond with a status code of 400 if any  error raised for while updating the booking of a user    .", async () => {
     
    const mockToken='mocked1Token.mocked1Token.mocked1Token';
    EMB.findByIdAndUpdate.mockRejectedValue(new Error("data base error"))
    Events.findByIdAndUpdate.mockRejectedValue(new Error("data base error"))
 
        
-
+const body=[{NoOfSeatsBooking:20}]
                     const response = await app.inject({
                         method: 'PUT',
                         url: '/event/bookings/67ab4d689ca224decd135353',
+                        payload:body[0],
                      
                         headers: {
                             'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
