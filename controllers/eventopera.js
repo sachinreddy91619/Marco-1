@@ -220,20 +220,20 @@ export const deleteevent = async (request, reply) => {
         // await event.deleteOne();
         // reply.status(200).send({ message: 'event deleted successfully' });
 
-        
-// const event1 =await Event.findByIdAndDelete(request.params.id);
-// if(event1){
-// reply.status(200).send({ message: 'event deleted successfully' });
-// }
 
-const event = await Event.findByIdAndDelete(request.params.id);
+        // const event1 =await Event.findByIdAndDelete(request.params.id);
+        // if(event1){
+        // reply.status(200).send({ message: 'event deleted successfully' });
+        // }
+
+        const event = await Event.findByIdAndDelete(request.params.id);
         if (!event || event.userId.toString() !== request.user.id) {
             return reply.status(400).send({ error: 'event not found' })
         }
 
 
-    
-    reply.status(200).send({ message: 'event deleted successfully' });
+
+        reply.status(200).send({ message: 'event deleted successfully' });
 
 
 
@@ -272,7 +272,7 @@ export const loc = async (request, reply) => {
         });
         console.log(request.user.id)
         await event.save();
-        reply.status(200).send({message:"location saved for this user"});
+        reply.status(200).send({ message: "location saved for this user" });
 
     } catch (err) {
         reply.status(400).send({ message: "getting the error while giving the event location" })
@@ -492,7 +492,26 @@ export const eventdelete = async (request, reply) => {
 
     try {
 
-        const event = await EMB.findById(request.params.id);
+        // const event = await EMB.findById(request.params.id);
+
+        // if (!event || event.userId.toString() !== request.user.id) {
+        //     return reply.status(400).send({ error: 'bookings not found' });
+        // }
+
+        // const d = event.NoOfSeatsBooking;
+
+        // const event1 = await Event.findByIdAndUpdate(event.eventid);
+        // event1.bookedseats = event1.bookedseats - d;
+        // event1.availableseats = event1.totalseats - event1.bookedseats;
+
+        // await event1.save();
+
+
+        // await event.deleteOne();
+        // reply.status(200).send({ message: 'event booking cancelled successfully' });
+
+
+        const event = await EMB.findByIdAndDelete(request.params.id);
 
         if (!event || event.userId.toString() !== request.user.id) {
             return reply.status(400).send({ error: 'bookings not found' });
@@ -507,7 +526,7 @@ export const eventdelete = async (request, reply) => {
         await event1.save();
 
 
-        await event.deleteOne();
+
         reply.status(200).send({ message: 'event booking cancelled successfully' });
 
     }

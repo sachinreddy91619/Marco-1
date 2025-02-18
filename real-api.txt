@@ -72,37 +72,37 @@ if  expect(responseBody.message).toMatch('Validation failed in the header requir
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTllZjFhNWEwYzU1OTEyMjY5N2EzZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczODE0MTQ4N30.8jLTln7O176BZQzrVvBpPc0VKWeCWLCYW2xdg0evw98
 
 
+import roleMiddleware from '../path-to-your-middleware-file.js'; // Update with actual path
 
-==========================>==========================>
+describe("Role-Based Middleware", () => {
+    let mockRequest, mockReply;
 
-{
-    "_id": "6799f0485a0c559122697a42",
-    "amountrange": 10,
-    "eventname": "ram-tech-program",
-    "eventdate": "2043-02-03T00:00:00.000Z",
-    "eventlocation": "nkd",
-    "eventtime": "18:15:10",
-    "totalseats": 100,
-    "availableseats": 100,
-    "bookedseats": 0,
-    "userId": "6799ef1a5a0c559122697a3f",
-    "__v": 0
-}
-==========================>==========================>
+    beforeEach(() => {
+        mockRequest = { user: { role: "user" } };
+        mockReply = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn()
+        };
+    });
 
-{
-    "_id": "6799f09f5a0c559122697a44",
-    "amountrange": 5,
-    "eventname": "krishna-tech-program",
-    "eventdate": "2026-02-03T00:00:00.000Z",
-    "eventlocation": "nkd",
-    "eventtime": "18:15:10",
-    "totalseats": 100,
-    "availableseats": 100,
-    "bookedseats": 0,
-    "userId": "6799ef1a5a0c559122697a3f",
-    "__v": 0
-}
+    test("should allow access when user has required role", () => {
+        const middleware = roleMiddleware(["admin", "user"]);
+        middleware(mockRequest, mockReply);
+
+        expect(mockReply.status).not.toHaveBeenCalled();
+        expect(mockReply.send).not.toHaveBeenCalled();
+    });
+
+    test("should deny access when user does not have the required role", () => {
+        const middleware = roleMiddleware(["admin"]);
+        middleware(mockRequest, mockReply);
+
+        expect(mockReply.status).toHaveBeenCalledWith(401);
+        expect(mockReply.send).toHaveBeenCalledWith({
+            error: "User role not having the permissions to do"
+        });
+    });
+});
 
 
 ==========================>==========================>==========================>==========================>
