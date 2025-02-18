@@ -4,6 +4,7 @@ import EventLoc from '../models/EventLoc.js';
 import User from '../models/Users.js';
 import EMB from '../models/EMB.js';
 
+
 const app = fastify({
     logger: true
 });
@@ -468,7 +469,7 @@ export const booking = async (request, reply) => {
         }
         await event1.save();
         await book.save();
-        reply.send(book);
+        reply.status(200).send(book);
 
         console.log("this nkd")
 
@@ -494,7 +495,7 @@ export const eventdelete = async (request, reply) => {
         const event = await EMB.findById(request.params.id);
 
         if (!event || event.userId.toString() !== request.user.id) {
-            return reply.status(400).send({ error: 'event not found' });
+            return reply.status(400).send({ error: 'bookings not found' });
         }
 
         const d = event.NoOfSeatsBooking;
@@ -507,7 +508,7 @@ export const eventdelete = async (request, reply) => {
 
 
         await event.deleteOne();
-        reply.send({ message: 'event deleted successfully' });
+        reply.status(200).send({ message: 'event booking cancelled successfully' });
 
     }
 

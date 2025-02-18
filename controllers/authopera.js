@@ -231,7 +231,7 @@ export const logout = async (request, reply) => {
 
     catch (err) {
         //console.log('Error durign the logout', err);
-        reply.status(500).send({ error: 'error while logout in the current-user' });
+        reply.status(400).send({ error: 'error while logout in the current-user' });
     }
 
 }

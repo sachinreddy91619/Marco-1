@@ -525,7 +525,7 @@ async function eventRoutes(fastify, options) {
 
           return reply.status(400).send({
             error: 'Bad Request',
-            message: 'The authorization header is required, to delete the event'
+            message: 'The authorization header is required, while cancelling the event booking'
           })
 
         }
@@ -537,7 +537,7 @@ async function eventRoutes(fastify, options) {
           return reply.status(400).send({
 
             error: 'Bad Request',
-            message: 'The params is not Matching has per the requirements, give correct params id for deletion'
+            message: 'The params is not Matching has per the requirements, give correct params id for cancelling the event booking'
           })
         }
 

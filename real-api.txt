@@ -11,6 +11,10 @@ https://dev.to/smitterhane/a-meticulous-jwt-api-authentication-guide-youve-been-
 token validation
 https://medium.com/@eklavya_/effortless-middleware-testing-in-express-with-jest-a-comprehensive-guide-ce9b103571b4
 
+
+JEST coverage document :
+https://aakanksha-02.medium.com/understanding-the-jest-coverage-report-a-complete-guide-57d950130fdc
+
 how to implement the refresh token in node js
 
 swagger api
@@ -23,7 +27,8 @@ iam getting the latest  or last user given location events only , when i new use
 
 ..>  await app.emit('login',userid);
 
-
+jest code practices info :
+https://github.com/goldbergyoni/javascript-testing-best-practices
 
 These tokens are validated, stored server-side (in-memory, relational database, or key-value stores like Redis), and linked to the client through a session ID returned to the frontend.
 
@@ -31,31 +36,37 @@ Users are redirected back to the frontend with a session ID cookie
 
 This is the Backend For Frontend (BFF) pattern. acting as a proxy between the frontend and the backend, or being the backend itself. In this scenario, the frontend avoids handling authentication/authorization, sending requests to the backend which also auto-sends the session cookie. The backend handles the rest.
 
+how to get thw test code  coverage repost with the overall %
+
+
+npm run test -- -u -t="ColorPicker"
+
+ERRORS: 
+
+..>   +   "error": "Cannot read properties of undefined (reading 'toString')",
+
+..> SyntaxError: Unexpected end of JSON input
+        at JSON.parse (<anonymous>)
+
+..>  Events.findByIdAndDelete.mockResolvedValue(null);
+error : : {"error": "event not found"}
+
+..>  Events.findByIdAndDelete.mockResolvedValue({});
+error : {"error": "Cannot read properties of undefined (reading 'toString')"}
 
 
 
 
+..>  Events.findByIdAndDelete.mockResolvedValue(true);
+error : {"error": "Cannot read properties of undefined (reading 'toString')"}
 
 
+.........> difference between the toequal and towatch:
+in route :
+ message: 'Validation failed in the header requirement not matching@@',
 
-
-{
-    "username":"d",
-    "password":"d123",
-    "email":"d123@gamil.com",
-    "role":"admin"
-
-}
-
-
-=================>
-
-{
-    "username":"d",
-    "password":"d123"
-
-}
-
+ if expect(responseBody.message).toEqual('Validation failed in the header requirement not matching'); error
+if  expect(responseBody.message).toMatch('Validation failed in the header requirement not matching'); no error 
 ==========================>
 
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTllZjFhNWEwYzU1OTEyMjY5N2EzZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczODE0MTQ4N30.8jLTln7O176BZQzrVvBpPc0VKWeCWLCYW2xdg0evw98
@@ -1546,41 +1557,39 @@ reply.status(200).send({ message: 'event deleted successfully' });
 
 
 
-//////////////////////////////////////:
-
-Events Model :
-
-    {
-        "_id": "67ab179b5ae8f11485a9bd35",
-        "amountrange": 500,
-        "eventname": "Gujarat-Sports-Event",
-        "eventdate": "2055-02-10T00:00:00.000Z",
-        "eventlocation": "amc",
-        "eventtime": "20:23:10",
-        "totalseats": 100,
-        "availableseats": 100,
-        "bookedseats": 0,
-        "userId": "67aadac50e0dff82bf8a756f",
-        "__v": 0
-    },
+//////////////////////////////////////
 
 
+// test("should return an error if NoOfSeatsBooking is zero", async () => {
+//     const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
+//     const mockEvent = {
+//         _id: "67ab179b5ae8f11485a9bd35",
+//         amountrange: 10,
+//         eventname: "Event F",
+//         eventdate: "2027-02-10T00:00:00.000Z",
+//         eventlocation: "location f",
+//         eventtime: "15:30:30",
+//         totalseats: 100,
+//         availableseats: 50,
+//         bookedseats: 0,
+//         userId: "mockUser1Id",
+//         __v: 0
+//     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//     Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
+//     const bodydata = { NoOfSeatsBooking: 0 };
+//     const response = await app.inject({
+//         method: 'PUT',
+//         url: '/event/bookings/67ab179b5ae8f11485a9bd35',
+//         payload: bodydata,
+//         headers: { 'Authorization': `Bearer ${mockToken}` },
+//     });
+//     expect(response.statusCode).toBe(400);
+//     let responseBody = JSON.parse(response.body);
+//     expect(responseBody).toEqual({
+//         message: "no of seats cannot be zero"
+//     });
+// });
 
 
 
@@ -1589,3 +1598,188 @@ Events Model :
 
 
 
+
+
+
+
+
+
+
+
+
+
+Before update event:
+ const mockEvent = {
+        
+            "id": "67ab179b5ae8f11485a9bd35",
+            "amountrange": 10,
+            "eventname": "Event F",
+            "eventdate": "2027-02-10T00:00:00.000Z",
+            "eventlocation": "location f",
+            "eventtime": "15:30:30",
+            "totalseats": 100,
+            "availableseats": 40,
+            "bookedseats": 60,
+            "userId": "mockUser1Id",
+            "__v": 0
+        
+    }
+
+before update emb
+const data={
+
+      
+            "eventid": "67ab179b5ae8f11485a9bd35",
+            "amountrange": 10,
+            "eventname": "Event F",
+            "eventdate": "2027-02-10T00:00:00.000Z",
+            "eventlocation": "location f",
+            "eventtime": "15:30:30",
+            "eventManager": "EventManagerUser",
+            "eventManagerEmail": "eventmanager@example.com",
+            "eventBookedBy": "BookingUser",
+            "email": "bookinguser@example.com",
+            "NoOfSeatsBooking": 10,
+            "AmountNeedPay": 100,
+            "userId": "mockUser1Id"
+}
+
+
+
+
+after update event:
+ const mockEvent = {
+        
+            "id": "67ab179b5ae8f11485a9bd35",
+            "amountrange": 10,
+            "eventname": "Event F",
+            "eventdate": "2027-02-10T00:00:00.000Z",
+            "eventlocation": "location f",
+            "eventtime": "15:30:30",
+            "totalseats": 100,
+            "availableseats": 30,
+            "bookedseats": 70,
+            "userId": "mockUser1Id",
+            "__v": 0
+        
+    }
+
+
+    
+after update emb
+const data={
+
+      
+            "eventid": "67ab179b5ae8f11485a9bd35",
+            "amountrange": 10,
+            "eventname": "Event F",
+            "eventdate": "2027-02-10T00:00:00.000Z",
+            "eventlocation": "location f",
+            "eventtime": "15:30:30",
+            "eventManager": "EventManagerUser",
+            "eventManagerEmail": "eventmanager@example.com",
+            "eventBookedBy": "BookingUser",
+            "email": "bookinguser@example.com",
+            "NoOfSeatsBooking": 20,
+            "AmountNeedPay": 200,
+            "userId": "mockUser1Id"
+
+             "eventid": "67ab179b5ae8f11485a9bd36",
+            "amountrange": 50,
+            "eventname": "Event B",
+            "eventdate": "2028-02-10T00:00:00.000Z",
+            "eventlocation": "location b",
+            "eventtime": "15:30:30",
+            "eventManager": "EventManagerUser",
+            "eventManagerEmail": "eventmanager@example.com",
+            "eventBookedBy": "BookingUser",
+            "email": "bookinguser@example.com",
+            "NoOfSeatsBooking": 10,
+            "AmountNeedPay": 500,
+            "userId": "mockUser1Id"
+}
+
+EMB.prototype.deleteOne = jest.fn().mockResolvedValue({
+
+            "eventid": "67ab179b5ae8f11485a9bd36",
+            "amountrange": 50,
+            "eventname": "Event B",
+            "eventdate": "2028-02-10T00:00:00.000Z",
+            "eventlocation": "location b",
+            "eventtime": "15:30:30",
+            "eventManager": "EventManagerUser",
+            "eventManagerEmail": "eventmanager@example.com",
+            "eventBookedBy": "BookingUser",
+            "email": "bookinguser@example.com",
+            "NoOfSeatsBooking": 10,
+            "AmountNeedPay": 500,
+            "userId": "mockUser1Id"
+
+})
+
+ // EMB.prototype.save = jest.fn().mockResolvedValue({
+    //     eventid: "67ab179b5ae8f11485a9bd35",
+    //     eventManager: EMmockUser.username,
+    //     eventManagerEmail: EMmockUser.email,
+    //     eventname: "Event F",
+    //     eventdate: "2027-02-10T00:00:00.000Z",
+    //     eventlocation: "location f",
+    //     amountrange: mockEvent.amountrange,
+    //     eventtime: "15:30:30",
+    //     NoOfSeatsBooking: 20,
+    //     eventBookedBy: mockBookingUser.username,
+    //     email: mockBookingUser.email,
+    //     AmountNeedPay: mockEvent.amountrange * 10,
+    //     userId: mockBookingUser._id
+    // });2488
+
+
+
+        // Events.findById.mockResolvedValue({
+    //     _id: "67ab179b5ae8f11485a9bd35",
+    //     amountrange: 10,
+    //     eventname: "Event F",
+    //     eventdate: "2027-02-10T00:00:00.000Z",
+    //     eventlocation: "location f",
+    //     eventtime: "15:30:30",
+    //     totalseats: 100,
+    //     availableseats: 100,
+    //     bookedseats: 0,
+    //     userId: "mockUserId",
+    //     __v: 0
+    // })1861
+
+
+// Assuming you import deleteOne from a module
+
+import { deleteOne } from './yourModule';
+
+
+
+// Inside your test file
+
+jest.mock('./yourModule'); // Mock the entire module
+
+
+
+// Create a mock for deleteOne
+
+const mockDeleteOne = jest.fn(); 
+
+
+
+// Set the mock implementation (optional, defaults to undefined)
+
+mockDeleteOne.mockImplementation(() => Promise.resolve({ deletedCount: 1 })); 
+
+
+
+// Access the mocked function
+
+const deleteFunction = require('./yourModule').deleteOne; 
+
+
+
+// Now you can use deleteFunction in your test and verify its behavior 
+
+// using mockDeleteOne

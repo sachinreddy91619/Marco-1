@@ -85,6 +85,8 @@ async function authroutes(fastify, options) {
 
     fastify.post('/logout', {
         preHandler: async (request, reply) => {
+
+            
             
 
           
@@ -100,7 +102,7 @@ console.log(request.headers)
                 return reply.status(400).send({
 
                     error: 'Bad Request',
-                    message: 'Validation failed in the header requirement not matching hai !!',
+                    message: 'Validation failed in the header requirement not matching',
                 });
             }
 
