@@ -18,7 +18,7 @@ import dotenv from 'dotenv';
 
 
 jest.mock('jsonwebtoken');
-jest.mock('../../models/Users.js'); 
+jest.mock('../../models/Users.js');
 jest.mock('../../models/Logs.js');
 jest.mock('../../models/Events.js');
 jest.mock('../../models/EventLoc.js');
@@ -35,7 +35,7 @@ beforeAll(async () => {
     await app.listen(3044); // Ensure the Fastify app is running on port 3044
 
 
-    
+
 });
 
 afterAll(async () => {
@@ -96,7 +96,7 @@ describe("Event Creation API - Header Validation checking for the header is in c
         ];
 
 
-     
+
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
                 method: 'POST',
@@ -624,7 +624,7 @@ describe("Event Creation API - Header Validation checking for the header is in c
 
     test("should return 400 if header validation is not in correct format:", async () => {
 
-       
+
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
@@ -668,7 +668,7 @@ describe("Event Creation API - Params  Validation checking for the params in is 
 
     test("should return 400 if header validation is not in correct format:", async () => {
 
-       
+
 
         for (let i = 0; i < invalidParamsTestCases.length; i++) {
             const response = await app.inject({
@@ -994,7 +994,7 @@ describe("Event Updation Creation API - Header Validation checking for the heade
 
     test("should return 400 if header validation is not in correct format:", async () => {
 
-       
+
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
@@ -1519,7 +1519,7 @@ describe("testing catch block Error  the give  fields are updating correctly or 
             payload: bodydata,
 
             headers: {
-                'Authorization': `Bearer ${mockToken}`  
+                'Authorization': `Bearer ${mockToken}`
             }
         });
 
@@ -1824,7 +1824,7 @@ describe("testing while user providing the location", () => {
 
     test("should respond with a status code of 400 if any  error raised for invalid header while giving the location .", async () => {
 
-      
+
         const testcase = [{ eventneedlocation: "amc" }]
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
@@ -2020,11 +2020,19 @@ describe("testing case for  getting the events data without giving the location 
     test("should respond with a status code of 400 if the user trying to get the events data before giving the locatoion ", async () => {
 
 
-        EventLoc.findOne.mockResolvedValue([]);
+        // EventLoc.findOne.mockResolvedValue(null);
+
+        EventLoc.findOne.mockReturnValueOnce({
+            sort: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockResolvedValue(null)
+        });
+
+
 
         const response = await app.inject({
             method: 'GET',
-                  url: '/event/eventsforlocation',
+            url: '/event/eventsforlocation',
             headers: {
                 'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
             }
@@ -2049,14 +2057,21 @@ describe("testing case for  getting the events data but no events for the locati
 
         jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
         EventLoc.findOne = jest.fn().mockResolvedValue({
-            eventneedlocation: "telangana", 
+            eventneedlocation: "telangana",
             userId: "mockUserId"
         });
 
-    
+
         Events.find = jest.fn().mockResolvedValue(null);
-      
-      
+
+        EventLoc.findOne.mockReturnValue({
+            sort: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockResolvedValue(true)
+        });
+
+
+
 
 
         mockUserLog = {
@@ -2144,26 +2159,26 @@ describe("Catch block  test case Error  - Get Events based on the location", () 
 
     test(" Should return 400 error when any error occurs while get the events locations", async () => {
 
-        if(  Events.findById.mockRejectedValue(new Error("Database Error 1")) || EventLoc.findOne.mockRejectedValue(new Error("Database Error 1"))){
-
-      
-        
-        const response = await app.inject({
-            method: 'GET',
-            url: '/event/eventsforlocation',
+        if (Events.findById.mockRejectedValue(new Error("Database Error 1")) || EventLoc.findOne.mockRejectedValue(new Error("Database Error 1"))) {
 
 
-            headers: {
-                'Authorization': `Bearer ${mockToken}`  
-            }
 
-        });
+            const response = await app.inject({
+                method: 'GET',
+                url: '/event/eventsforlocation',
 
-        expect(response.statusCode).toBe(400);
-        expect(response.headers['content-type']).toContain('application/json');
-        const responseBody = JSON.parse(response.body);
-        expect(responseBody.error).toMatch("Database Error 1")
-    }
+
+                headers: {
+                    'Authorization': `Bearer ${mockToken}`
+                }
+
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.headers['content-type']).toContain('application/json');
+            const responseBody = JSON.parse(response.body);
+            expect(responseBody.error).toMatch("Database Error 1")
+        }
     });
 
 })
@@ -2199,116 +2214,121 @@ describe("testing while user providing the location", () => {
             save: jest.fn().mockResolvedValue(true)
         };
 
-        Logs.findOne.mockResolvedValue(mockUserLog);  
+        Logs.findOne.mockResolvedValue(mockUserLog);
 
-         Events.findByIdAndUpdate = jest.fn().mockResolvedValue({
-        _id: "67ab179b5ae8f11485a9bd35",
-        amountrange: 10,
-        eventname: "Event F",
-        eventdate: "2027-02-10T00:00:00.000Z",
-        eventlocation: "location f",
-        eventtime: "15:30:30",
-        totalseats: 100,
-        availableseats: 60,
-        bookedseats: 40,
-        userId: "mockUser1Id",
-        __v: 0
+        Events.findByIdAndUpdate = jest.fn().mockResolvedValue({
+            _id: "67ab179b5ae8f11485a9bd35",
+            amountrange: 10,
+            eventname: "Event F",
+            eventdate: "2027-02-10T00:00:00.000Z",
+            eventlocation: "location f",
+            eventtime: "15:30:30",
+            totalseats: 100,
+            availableseats: 60,
+            bookedseats: 40,
+            userId: "mockUser1Id",
+            __v: 0
+        });
+
+
     });
 
 
+
+
+
+
+
+
+    test("should calculate the correct amount and update event seats", async () => {
+
+
+        // Mock event data
+        const mockEvent = {
+
+            _id: "67ab179b5ae8f11485a9bd35",
+            amountrange: 10,
+            eventname: "Event F",
+            eventdate: "2027-02-10T00:00:00.000Z",
+            eventlocation: "location f",
+            eventtime: "15:30:30",
+            totalseats: 100,
+            availableseats: 40,
+            bookedseats: 60,
+            userId: "mockUser1Id",
+            __v: 0
+
+        }
+
+        Events.findById = jest.fn().mockResolvedValue(mockEvent);
+
+        const data = {
+
+
+            "eventid": "67ab179b5ae8f11485a9bd35",
+            "amountrange": 10,
+            "eventname": "Event F",
+            "eventdate": "2027-02-10T00:00:00.000Z",
+            "eventlocation": "location f",
+            "eventtime": "15:30:30",
+            "eventManager": "EventManagerUser",
+            "eventManagerEmail": "eventmanager@example.com",
+            "eventBookedBy": "BookingUser",
+            "email": "bookinguser@example.com",
+            "NoOfSeatsBooking": 20,
+            "AmountNeedPay": 200,
+            "userId": "mockUser1Id"
+        }
+
+
+        const mockEventManager = {
+            _id: "mockUser1Id",
+            username: "EventManagerUser",
+            email: "eventmanager@example.com"
+        };
+
+        const mockBookingUser = {
+            _id: "67b33a1b13016c9d42605dd3",
+            username: "BookingUser",
+            email: "bookinguser@example.com"
+        };
+
+        //Events.findByIdAndUpdate = jest.fn().mockResolvedVa(mockEvent)
+
+        Users.findById.mockResolvedValueOnce(mockEventManager); // Mock for event manager
+        Users.findById.mockResolvedValueOnce(mockBookingUser); // Mock for booking user
+
+        // EMB.findByIdAndUpdate = jest.fn().mockResolvedValue(
+
+        //     data);
+
+        EMB.create = jest.fn().mockResolvedValue(data);
+
+
+
+
+        // Simulate booking 20 seats
+        const bodydata = { NoOfSeatsBooking: 20 };
+
+        const response = await app.inject({
+            method: 'POST',
+            url: '/event/eventit/67ab179b5ae8f11485a9bd35',
+            payload: bodydata,
+            headers: { 'Authorization': `Bearer ${mockToken}` },
+        });
+
+        expect(response.statusCode).toBe(200);
+
+        console.log("Full Response:", response);
+
+        //const responseBody = JSON.parse(response.body);
+
+        console.log("Response Body:", response.body);
+
+        expect(response.body).toEqual(data)
+
+
     });
-
-    
-
-
-
-
-
-    
-test("should calculate the correct amount and update event seats", async () => {
-    const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
-
-    // Mock event data
-    const mockEvent = {
-
-        _id: "67ab179b5ae8f11485a9bd35",
-        amountrange: 10,
-        eventname: "Event F",
-        eventdate: "2027-02-10T00:00:00.000Z",
-        eventlocation: "location f",
-        eventtime: "15:30:30",
-        totalseats: 100,
-        availableseats: 40,
-        bookedseats: 60,
-        userId: "mockUser1Id",
-        __v: 0
-
-    }
-
-    const data = {
-
-
-        "eventid": "67ab179b5ae8f11485a9bd35",
-        "amountrange": 10,
-        "eventname": "Event F",
-        "eventdate": "2027-02-10T00:00:00.000Z",
-        "eventlocation": "location f",
-        "eventtime": "15:30:30",
-        "eventManager": "EventManagerUser",
-        "eventManagerEmail": "eventmanager@example.com",
-        "eventBookedBy": "BookingUser",
-        "email": "bookinguser@example.com",
-        "NoOfSeatsBooking": 20,
-        "AmountNeedPay": 200,
-        "userId": "mockUser1Id"
-    }
-
-
-    const mockEventManager = {
-        _id: "mockUser1Id",
-        username: "EventManagerUser",
-        email: "eventmanager@example.com"
-    };
-
-    const mockBookingUser = {
-        _id: "new ObjectId('67b33a1b13016c9d42605dd3')",
-        username: "BookingUser",
-        email: "bookinguser@example.com"
-    };
-
-    Events.findByIdAndUpdate = jest.fn().mockResolvedValue(mockEvent)
-    
-    Users.findById.mockResolvedValueOnce(mockEventManager); // Mock for event manager
-    Users.findById.mockResolvedValueOnce(mockBookingUser); // Mock for booking user
-
-    EMB.findByIdAndUpdate = jest.fn().mockReturnValue(
-
-    data);
-    
-
-   
-    // Simulate booking 20 seats
-    const bodydata = { NoOfSeatsBooking: 20 };
-
-    const response = await app.inject({
-        method: 'POST',
-        url: '/event/eventit/67ab179b5ae8f11485a9bd35',
-        payload: bodydata,
-        headers: { 'Authorization': `Bearer ${mockToken}` },
-    });
-
-    expect(response.statusCode).toBe(200);
-
-    console.log("Full Response:", response);
-
-    //const responseBody = JSON.parse(response.body);
-
-    console.log("Response Body:", response.body);
-
-    expect(response.body).toEqual(data)
-
-
-});
 
 });
 
@@ -2343,7 +2363,7 @@ describe("testing while user providing the location", () => {
 
     test("should respond with a status code of 400 if any  error raised for invalid header while booking the event  .", async () => {
 
-       
+
         const testcase = [{ NoOfSeatsBooking: 10 }]
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
@@ -2810,25 +2830,25 @@ test("should return an error if requested seats exceed available seats", async (
     };
 
     // Mock `findByIdAndUpdate` to return the event
-    const event1=Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
+    const event1 = Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
 
     // Request to book more seats than available (e.g., 10 seats)
     const bodydata = { NoOfSeatsBooking: 10 };
 
-if (event1.availableseats < bodydata.NoOfSeatsBooking) {
+    if (event1.availableseats < bodydata.NoOfSeatsBooking) {
 
-    const response = await app.inject({
-        method: 'PUT',
-        url: '/event/bookings/67ab179b5ae8f11485a9bd35',
-        payload: bodydata,
-        headers: { 'Authorization': `Bearer ${mockToken}` },
-    });
+        const response = await app.inject({
+            method: 'PUT',
+            url: '/event/bookings/67ab179b5ae8f11485a9bd35',
+            payload: bodydata,
+            headers: { 'Authorization': `Bearer ${mockToken}` },
+        });
 
-    expect(response.statusCode).toBe(400);
-    const responseBody = JSON.parse(response.body);
+        expect(response.statusCode).toBe(400);
+        const responseBody = JSON.parse(response.body);
 
-    expect(responseBody.message).toEqual(
-        "maximum number of seats can be booked :5, so please reduce the number of seats");
+        expect(responseBody.message).toEqual(
+            "maximum number of seats can be booked :5, so please reduce the number of seats");
 
     }
 });
@@ -3102,31 +3122,31 @@ test("should respond with a status code of 200 if the event id is present in the
 
     //Events.findByIdAndDelete = jest.fn().mockResolvedValue(true);
 
-   // Events.findByIdAndUpdate.mockResolvedValue(true);
+    // Events.findByIdAndUpdate.mockResolvedValue(true);
 
-   Events.findByIdAndUpdate.mockResolvedValue({
-    bookedseats: 5,
-    availableseats: 10,
-    totalseats: 20,
-    save: jest.fn().mockResolvedValue(true),
-});
+    Events.findByIdAndUpdate.mockResolvedValue({
+        bookedseats: 5,
+        availableseats: 10,
+        totalseats: 20,
+        save: jest.fn().mockResolvedValue(true),
+    });
 
-    const mockEvent = { 
-        _id: "67ab179b5ae8f11485a9bd35", 
-        userId: "mockUser1Id" ,
+    const mockEvent = {
+        _id: "67ab179b5ae8f11485a9bd35",
+        userId: "mockUser1Id",
         eventid: "someEventId",
         NoOfSeatsBooking: 5,
 
     };
 
     EMB.findByIdAndDelete.mockResolvedValue(mockEvent);
- 
+
 
     const response = await app.inject({
         method: 'DELETE',
         url: '/event/cc/67ab179b5ae8f11485a9bd35',
         headers: {
-            'Authorization': `Bearer ${mockToken}` 
+            'Authorization': `Bearer ${mockToken}`
         }
     });
     expect(response.statusCode).toBe(200);
@@ -3140,7 +3160,7 @@ test("should respond with a status code of 400 if any data base error raised whi
 
 
 
- const mockToken = "mockedToken.mockedToken.mockedToken"
+    const mockToken = "mockedToken.mockedToken.mockedToken"
 
     if (EMB.findByIdAndDelete.mockRejectedValue(new Error("data base error raised")) || Events.findByIdAndUpdate.mockRejectedValue(new Error("data base error raised"))) {
 

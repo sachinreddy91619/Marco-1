@@ -102,7 +102,7 @@ export const getevent = async (request, reply) => {
 
         //     reply.send(event1);
         // }
-//[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+        //[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
         //     const loc = await EventLoc.find({});
         //     console.log(request.user.id)
         //     console.log(loc)
@@ -280,8 +280,8 @@ export const loc = async (request, reply) => {
 }
 
 
-export const locationevent=async(request,reply)=>{
-    try{
+export const locationevent = async (request, reply) => {
+    try {
 
 
         const userlocation = await EventLoc.findOne({
@@ -297,21 +297,30 @@ export const locationevent=async(request,reply)=>{
             return reply.status(404).send({ message: "Please provide your location first." })
         }
 
-        const loc = userlocation.eventneedlocation.toLowerCase();
+        // const loc = userlocation.eventneedlocation.toLowerCase();
+
+        // // Find events based on the user's location
+        // const event1 = await Event.find({ eventlocation: loc });
+
+
+
 
         // Find events based on the user's location
-        const event1 = await Event.find({ eventlocation: loc });
+        const event1 = await Event.find({ eventlocation: userlocation.eventneedlocation.toLowerCase() });
+
+
+
 
         if (!event1 || event1.length === 0) {
             return reply.status(404).send({ message: "No events found for this location" });
         }
 
         reply.send(event1);
-    
+
 
     }
-    catch(err){
-        reply.status(400).send({error:err.message})
+    catch (err) {
+        reply.status(400).send({ error: err.message })
     }
 }
 
