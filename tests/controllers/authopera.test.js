@@ -526,6 +526,8 @@ describe("Testing the logout validation functionality", () => {
         };
 
         Logs.findOne.mockResolvedValue(mockUserLog);
+
+
     });
 
 
@@ -568,10 +570,11 @@ describe("Testing the logout validation functionality", () => {
     })
 })
 
+
 // Successfully logout 
 describe("Testing the successful logout functionality", () => {
 
-    let mockToken;
+    const mockToken = 'mockedToken.mockedToken.mockedToken';
     let mockUserLog;
     beforeAll(() => {
 
@@ -579,35 +582,22 @@ describe("Testing the successful logout functionality", () => {
         mockUserLog = {
             _id: 'log123',
             UserId: 'user123',
-            logintime: '2025-02-03T10:19:31.568+00:00',
+            logintime: new Date(),
             logouttime: null,
             UserToken: 'mockedToken.mockedToken.mockedToken',
             save: jest.fn().mockResolvedValue(true) // Mock the save method to resolve successfully
         };
     })
-    mockToken = jwt.sign({ id: 'user123', role: 'admin' }, process.env.SEC); // Use your JWT secret here
+
+    jwt.verify.mockReturnValue({ id: 'user123', role: 'user' });
+
+    Logs.findOne.mockResolvedValue(mockUserLog);
+
+    //mockToken = jwt.sign({ id: 'user123', role: 'admin' }, process.env.SEC); 
 
     test("should return 200 and successfully log out the user", async () => {
 
-
-        const mockToken = 'mockedToken.mockedToken.mockedToken';
-
-        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
-
-
-        const mockUserLog = {
-            _id: 'log123',
-            UserId: 'mockUserId',
-            logintime: new Date(),
-            logouttime: null,
-            UserToken: mockToken,
-            save: jest.fn().mockResolvedValue(true)
-        };
-
-
-        Logs.findOne.mockResolvedValue(mockUserLog);
-
-
+       
 
         // Simulate the logout request with the Authorization header
         const response = await app.inject({
@@ -630,57 +620,54 @@ describe("Testing the successful logout functionality", () => {
 });
 
 
-//catch block logout functionality :
 
-// describe("Testing logout functionality when an error occurs", () => {
+// catch block logout functionality :
 
-//     beforeEach(() => {
+describe("Testing logout functionality when an error occurs", () => {
 
-//         jwt.verify.mockImplementation(() => ({ id: 'user123', role: 'user' }));
+    const mockToken = "mockedtoken.mockedtoken.mockedtoken";
 
-//         Logs.findOne.mockRejectedValue(new Error('Database error'));
-//     });
+    beforeEach(() => {
 
-//     afterEach(() => {
+        jwt.verify.mockImplementation(() => ({ id: 'user123', role: 'user' }));
+    });
 
-//         jest.clearAllMocks();
-//     });
+    test("should return 400 status when Logs.findOne throws an error", async () => {
 
+        Logs.findOne.mockRejectedValue(new Error('Database error'));
 
-//     test("should return 400 status when Logs.findOne throws an error", async () => {
+ 
+  
 
-//         const mockToken = "mockedtoken.mockedtoken.mockedtoken";
+       
 
-//         const response = await app.inject({
-//             method: 'POST',
-//             url: '/auth/logout',
-//             headers: {
-//                 Authorization: `Bearer ${mockToken}`,
-//             },
-//         });
-
-
-//         expect(response.statusCode).toBe(400);
-//         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-
-//         const responseBody = JSON.parse(response.body);
-
-//         expect(responseBody.error).toEqual('error while logout in the current-user');
-//     });
-// });
+        const response = await app.inject({
+            method: 'POST',
+            url: '/auth/logout',
+            headers: {
+                Authorization: `Bearer ${mockToken}`,
+            },
+        });
 
 
+        expect(response.statusCode).toBe(403);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
-///////////////////////////////// Middleware test cases ///////////////////////////////////
+        const responseBody = JSON.parse(response.body);
+
+        expect(responseBody.error).toEqual('error while logout of the current-user');
+    });
+});
+
 
 
 describe("Testing logout with no active session", () => {
     test("should return 400 if no active session is found for the user", async () => {
-        // Mock the behavior where no user logs are found
-        // Simulate no logs found
-        Logs.findOne.mockResolvedValue(null);
+
+        
+       Logs.findOne.mockResolvedValue(null);
         // Create a mock JWT token (This should match your actual token format and secret)
-        const mockToken = jwt.sign({ id: 'user123' }, process.env.SEC); // Generate a valid JWT with a user id
+        const mockToken = jwt.sign({ id: 'user123',role:'user' }, process.env.SEC); // Generate a valid JWT with a user id
 
 
 
@@ -688,18 +675,18 @@ describe("Testing logout with no active session", () => {
             method: 'POST',
             url: '/auth/logout',
             headers: {
-                Authorization: `Bearer ${mockToken}`  // Set the Authorization header
+                Authorization: `Bearer ${mockToken}`  
             },
         });
 
-        // Assert that the response has a 400 status code
+     
         expect(response.statusCode).toBe(403);
         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
         const responseBody = JSON.parse(response.body);
 
-        // Assert the response error and message match the expected ones
-        // expect(responseBody.error).toBe('Bad Request');
+       
+      
         expect(responseBody.error).toBe('User is logged out, access denied');
     });
 });
@@ -720,7 +707,7 @@ describe("Testing middleware - Invalid or Expired Token", () => {
 
         const response = await app.inject({
             method: 'POST',
-            url: '/auth/logout', // Use an actual route where middleware is applied
+            url: '/auth/logout', 
             headers: { Authorization: `Bearer ${mockToken}` }
         });
 

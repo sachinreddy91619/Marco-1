@@ -3,7 +3,7 @@ import fastify from 'fastify';
 const app = fastify({
   logger: true
 });
-import { createEvent, getevent, getbyid, deleteevent, updateevent, loc, eventbook, getallbookings, booking, eventdelete } from '../controllers/eventopera.js';
+import { createEvent, getevent, getbyid, deleteevent, updateevent, loc,locationevent, eventbook, getallbookings, booking, eventdelete } from '../controllers/eventopera.js';
 import createEventSchema from '../schemas/createEventSchema.js';
 import updateEventSchema from '../schemas/createEventSchema.js';
 import getbyidEventSchema from '../schemas/getbyidEventSchema.js';
@@ -358,7 +358,27 @@ async function eventRoutes(fastify, options) {
   }, loc);
 
 
+fastify.get('/eventsforlocation',{
 
+  preHandler: async (request, reply) => {
+
+
+    const { error } = EMgetEventsValidation.validate({
+      authorization: request.headers['authorization'], // Accessing the header value
+    });
+
+    if (error) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: 'The authorization header is required, to get the events of the for the particular location',
+        //message:error.details[0].message,
+      });
+    }
+
+    await auth(request, reply);
+  }
+
+},locationevent)
 
 
   // this route is book the event

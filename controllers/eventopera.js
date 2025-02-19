@@ -76,33 +76,33 @@ export const getevent = async (request, reply) => {
             console.log(global.backlistedTokens);
 
         }
-        else {
+        // else {
 
-            const userlocation = await EventLoc.findOne({
-                userId: request.user.id
-            })
-                .sort({ createdAt: -1 }) // Sort by
-                .limit(1);
+        //     const userlocation = await EventLoc.findOne({
+        //         userId: request.user.id
+        //     })
+        //         .sort({ createdAt: -1 }) // Sort by
+        //         .limit(1);
 
 
-            console.log(userlocation, "sachin sachin sachin sachin sachin")
+        //     console.log(userlocation, "sachin sachin sachin sachin sachin")
 
-            if (!userlocation) {
-                return reply.status(404).send({ message: "Please provide your location first." })
-            }
+        //     if (!userlocation) {
+        //         return reply.status(404).send({ message: "Please provide your location first." })
+        //     }
 
-            const loc = userlocation.eventneedlocation.toLowerCase();
+        //     const loc = userlocation.eventneedlocation.toLowerCase();
 
-            // Find events based on the user's location
-            const event1 = await Event.find({ eventlocation: loc });
+        //     // Find events based on the user's location
+        //     const event1 = await Event.find({ eventlocation: loc });
 
-            if (!event1 || event1.length === 0) {
-                return reply.status(404).send({ message: "No events found for this location" });
-            }
+        //     if (!event1 || event1.length === 0) {
+        //         return reply.status(404).send({ message: "No events found for this location" });
+        //     }
 
-            reply.send(event1);
-        }
-
+        //     reply.send(event1);
+        // }
+//[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
         //     const loc = await EventLoc.find({});
         //     console.log(request.user.id)
         //     console.log(loc)
@@ -278,6 +278,44 @@ export const loc = async (request, reply) => {
         reply.status(400).send({ message: "getting the error while giving the event location" })
     }
 }
+
+
+export const locationevent=async(request,reply)=>{
+    try{
+
+
+        const userlocation = await EventLoc.findOne({
+            userId: request.user.id
+        })
+            .sort({ createdAt: -1 }) // Sort by
+            .limit(1);
+
+
+        console.log(userlocation, "sachin sachin sachin sachin sachin")
+
+        if (!userlocation) {
+            return reply.status(404).send({ message: "Please provide your location first." })
+        }
+
+        const loc = userlocation.eventneedlocation.toLowerCase();
+
+        // Find events based on the user's location
+        const event1 = await Event.find({ eventlocation: loc });
+
+        if (!event1 || event1.length === 0) {
+            return reply.status(404).send({ message: "No events found for this location" });
+        }
+
+        reply.send(event1);
+    
+
+    }
+    catch(err){
+        reply.status(400).send({error:err.message})
+    }
+}
+
+
 
 
 // This is the route for event booking 

@@ -201,7 +201,7 @@ export const logout = async (request, reply) => {
         const authHeader = request.headers['authorization'];
         console.log("Logout attempt, received token:", authHeader);
         const token = authHeader && authHeader.split(' ')[1];
-//Done
+
         if (!token) {                        
             return reply.status(401).send({ error: 'token required for the logging' })
         };
@@ -231,7 +231,7 @@ export const logout = async (request, reply) => {
 
     catch (err) {
         //console.log('Error durign the logout', err);
-        reply.status(400).send({ error: 'error while logout in the current-user' });
+        reply.status(400).send({ error: 'error while logout of the current-user' });
     }
 
 }

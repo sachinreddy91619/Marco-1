@@ -15,6 +15,12 @@ https://medium.com/@eklavya_/effortless-middleware-testing-in-express-with-jest-
 JEST coverage document :
 https://aakanksha-02.medium.com/understanding-the-jest-coverage-report-a-complete-guide-57d950130fdc
 
+
+
+..> jest simple uasge code:
+
+https://javascript.plainenglish.io/jest-mock-for-unit-testing-mern-backend-983c1e3fef83
+
 how to implement the refresh token in node js
 
 swagger api
@@ -25,6 +31,7 @@ all about the patch method
 need to remove the bookingStatus
 iam getting the latest  or last user given location events only , when i new user asking for the http://localhost:3021/event/get
 
+..> deployed the web application  to the aws server staging instance
 ..>  await app.emit('login',userid);
 
 jest code practices info :
@@ -43,6 +50,11 @@ npm run test -- -u -t="ColorPicker"
 
 ERRORS: 
 
+
+...> eRROR :
+"_EventLoc.default.findOne(...).sort is not a function"
+WHILE GIVING THE LOCATION
+
 ..>   +   "error": "Cannot read properties of undefined (reading 'toString')",
 
 ..> SyntaxError: Unexpected end of JSON input
@@ -54,12 +66,18 @@ error : : {"error": "event not found"}
 ..>  Events.findByIdAndDelete.mockResolvedValue({});
 error : {"error": "Cannot read properties of undefined (reading 'toString')"}
 
-
+...> Expected value: "event booking cancelled successfully"
+    Received value: {"error": "Cannot create property 'bookedseats' on boolean 'true'"}
 
 
 ..>  Events.findByIdAndDelete.mockResolvedValue(true);
 error : {"error": "Cannot read properties of undefined (reading 'toString')"}
 
+
+
+
+...>    +   "error": "Cannot read properties of undefined (reading 'username')",
+error :
 
 .........> difference between the toequal and towatch:
 in route :
@@ -69,7 +87,6 @@ in route :
 if  expect(responseBody.message).toMatch('Validation failed in the header requirement not matching'); no error 
 ==========================>
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTllZjFhNWEwYzU1OTEyMjY5N2EzZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczODE0MTQ4N30.8jLTln7O176BZQzrVvBpPc0VKWeCWLCYW2xdg0evw98
 
 
 import roleMiddleware from '../path-to-your-middleware-file.js'; // Update with actual path
@@ -86,6 +103,7 @@ describe("Role-Based Middleware", () => {
     });
 
     test("should allow access when user has required role", () => {
+
         const middleware = roleMiddleware(["admin", "user"]);
         middleware(mockRequest, mockReply);
 

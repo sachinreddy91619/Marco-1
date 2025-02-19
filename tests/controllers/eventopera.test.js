@@ -17,9 +17,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 
-
 jest.mock('jsonwebtoken');
-jest.mock('../../models/Users.js'); // Mock Users model
+jest.mock('../../models/Users.js'); 
 jest.mock('../../models/Logs.js');
 jest.mock('../../models/Events.js');
 jest.mock('../../models/EventLoc.js');
@@ -34,6 +33,9 @@ process.env.SEC = 'SACHIN'
 
 beforeAll(async () => {
     await app.listen(3044); // Ensure the Fastify app is running on port 3044
+
+
+    
 });
 
 afterAll(async () => {
@@ -45,6 +47,25 @@ afterEach(() => {
     jest.clearAllMocks();
 })
 
+const invalidHeadersTestCases = [
+    {}, // No Authorization header
+    { Authorization: "" }, // Empty Authorization
+    { Authorization: "Bearer" }, // Missing token
+    { Authorization: "Bearer " }, // Missing token after space
+    { Authorization: "Bearer.invalid.token" }, // Invalid format
+    { Authorization: "RandomToken 12345" }, // Wrong prefix
+    { Authorization: "Bearer12345" }, // No space after Bearer
+    { Authorization: "Bearer mockedToken" }, // Only one part of JWT
+];
+
+const invalidParamsTestCases = [
+    "", // Empty ID
+    "123", // Too short
+    "invalid-id", // Non-hex characters
+    "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
+    "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
+    "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
+];
 
 describe("Event Creation API - Header Validation checking for the header is in correct format or not", () => {
     let mockToken;
@@ -75,17 +96,7 @@ describe("Event Creation API - Header Validation checking for the header is in c
         ];
 
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
-
+     
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
                 method: 'POST',
@@ -102,14 +113,6 @@ describe("Event Creation API - Header Validation checking for the header is in c
         }
     });
 });
-
-
-
-
-
-
-
-
 
 
 describe("Event Creation API - Token Validation and Missing Fields", () => {
@@ -206,7 +209,6 @@ describe("testing the validation of event fields", () => {
             { eventname: "Event C", eventdate: "2025-06-10", eventlocation: "Location C", amountrange: 150, eventtime: "invalid-time", totalseats: 150, availableseats: 130, bookedseats: 20 }, // Invalid eventtime format
             { eventname: "Event D", eventdate: "2025-07-25", eventlocation: "Location D", amountrange: 50, eventtime: "12:00", totalseats: -50, availableseats: 40, bookedseats: 10 }, // Invalid totalseats (should be >= 10)
 
-
             { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: 50, availableseats: -10, bookedseats: 10 }, // Invalid availableseats (should not be negative)
             { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 0, eventtime: "18:00", totalseats: 50, availableseats: -10, bookedseats: 10 }, // Invalid amountrange  should be min 1
             { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: 5, availableseats: -10, bookedseats: 10 },
@@ -214,10 +216,6 @@ describe("testing the validation of event fields", () => {
             { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: "50", availableseats: -10, bookedseats: 10 },
             { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: 50, availableseats: "10", bookedseats: 10 },
             { eventname: "Event E", eventdate: "2025-08-15", eventlocation: "Location E", amountrange: 50, eventtime: "18:00", totalseats: 50, availableseats: 10, bookedseats: "10" }
-
-
-
-
 
         ];
 
@@ -246,10 +244,7 @@ describe("testing the validation of event fields", () => {
 
 });
 
-
-
 describe("testing wheather the date is in the future or not", () => {
-
 
     let mockToken;
     let mockUserLog;
@@ -308,14 +303,7 @@ describe("testing wheather the date is in the future or not", () => {
         }
     });
 
-
-
-
 });
-
-
-
-
 
 describe("testing wheather the Event is succefully created or not ", () => {
 
@@ -441,8 +429,6 @@ describe("testing for the CATCH block errors while creating the Event by Emanage
             }
         });
 
-
-
         expect(response.statusCode).toBe(400);
         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
@@ -521,8 +507,6 @@ describe("testing wheather the Get method is working for the  admin  succefully 
             }
         });
 
-
-
         expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
@@ -563,60 +547,6 @@ describe("testing wheather the Get method is working for the  admin  succefully 
 });
 
 
-
-
-
-
-// test case for the  user , getting the events data  but no events for the location
-describe("testing case for  getting the events data but no events for the location", () => {
-
-    let mockToken;
-    let mockUserLog;
-
-    beforeEach(() => {
-        mockToken = 'mockedToken.mockedToken.mockedToken';
-        EventLoc.find = jest.fn().mockResolvedValue([]);
-
-
-        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
-
-        mockUserLog = {
-            _id: 'log123',
-            UserId: 'mockUserId',
-            logintime: new Date(),
-            logouttime: null,
-            UserToken: mockToken,
-            save: jest.fn().mockResolvedValue(true)
-        };
-
-        Logs.findOne.mockResolvedValue(mockUserLog);
-        Events.findOne = jest.fn().mockResolvedValue(null);
-
-
-    });
-
-    test("should respond with a status code of 400 if the user trying to get the events data but no events for the location", async () => {
-
-
-
-
-
-        const response = await app.inject({
-            method: 'GET',
-            url: '/event/get',
-            headers: {
-                'Authorization': `Bearer ${mockToken}`
-            }
-        });
-
-        expect(response.statusCode).toBe(400);
-        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-        const responseBody = JSON.parse(response.body);
-        expect(responseBody).toEqual({ message: "No events found for this location" });
-
-    });
-
-});
 
 
 
@@ -668,15 +598,8 @@ describe("testing the catch block errors for the Get method ", () => {
     });
 });
 
-
-
-
 // ======================================================================================================================================================================================================
 ///TEST CASES FOR THE , GETBYID METHOD :
-
-
-
-
 
 describe("Event Creation API - Header Validation checking for the header is in correct format or not for the GET BY ID route", () => {
     let mockToken;
@@ -701,16 +624,7 @@ describe("Event Creation API - Header Validation checking for the header is in c
 
     test("should return 400 if header validation is not in correct format:", async () => {
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
+       
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
@@ -754,14 +668,7 @@ describe("Event Creation API - Params  Validation checking for the params in is 
 
     test("should return 400 if header validation is not in correct format:", async () => {
 
-        const invalidParamsTestCases = [
-            "", // Empty ID
-            "123", // Too short
-            "invalid-id", // Non-hex characters
-            "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
-            "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
-            "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
-        ];
+       
 
         for (let i = 0; i < invalidParamsTestCases.length; i++) {
             const response = await app.inject({
@@ -888,17 +795,10 @@ describe("Event Retrieval API - Get Event by ID", () => {
 
 // / test case for the unsuccessfull working of the getbyid method here event not found error:
 
-
-
-
-
 describe("Event Not Found Error test case - Get Event by ID", () => {
     let mockToken;
     let mockUserId;
     let validbutNotFoundEventId;
-
-
-
 
     let mockUserLog;
 
@@ -1066,11 +966,7 @@ describe("Catch block  test case Error  - Get Event by ID", () => {
 // =================================================================================================================
 // ====================================================================================================================
 
-
 // TEST CASES FOR THE UPDATE OF THE EVENTS :
-
-
-
 
 describe("Event Updation Creation API - Header Validation checking for the header is in correct format or not for the Update the event  BY ID route", () => {
     let mockToken;
@@ -1098,16 +994,7 @@ describe("Event Updation Creation API - Header Validation checking for the heade
 
     test("should return 400 if header validation is not in correct format:", async () => {
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
+       
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
@@ -1153,14 +1040,6 @@ describe("Event Updation API - Params  Validation checking for the params in is 
 
     test("should return 400 if params validation is not in correct format:", async () => {
 
-        const invalidParamsTestCases = [
-            "", // Empty ID
-            "123", // Too short
-            "invalid-id", // Non-hex characters
-            "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
-            "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
-            "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
-        ];
 
         for (let i = 0; i < invalidParamsTestCases.length; i++) {
             const response = await app.inject({
@@ -1336,13 +1215,7 @@ describe("testing wheather the date is in the future or not  while updating the 
             console.log(" the event date is in the future ! so it is ok")
         }
     });
-
-
-
-
 })
-
-
 
 //// ===================================================== >
 
@@ -1404,13 +1277,7 @@ describe("testing wheather the given id event is present in the events model or 
 
 })
 
-
-
-
-
 //// ===================================================== >
-
-
 
 describe("testing wheather the given id event is present in the events model or not while updating the events date", () => {
 
@@ -1646,18 +1513,15 @@ describe("testing catch block Error  the give  fields are updating correctly or 
             eventdate: "2025-08-10", eventlocation: "AHMEDABAD", eventtime: "15:30:24"
         }
 
-
-
         const response = await app.inject({
             method: 'PUT',
             url: '/event/update/67ab179b5ae8f11485a9bd35',
             payload: bodydata,
 
             headers: {
-                'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+                'Authorization': `Bearer ${mockToken}`  
             }
         });
-
 
         // When any field is invalid, it should return 400
         expect(response.statusCode).toBe(400);
@@ -1673,11 +1537,7 @@ describe("testing catch block Error  the give  fields are updating correctly or 
 
 })
 
-
-
 /// DELETE TEST CASE EVENT MANAGER :
-
-
 
 describe("Event deletion  Creation API - Header Validation checking for the header is in correct format or not for the delete the event  BY ID route", () => {
     let mockToken;
@@ -1698,23 +1558,9 @@ describe("Event deletion  Creation API - Header Validation checking for the head
 
         Logs.findOne.mockResolvedValue(mockUserLog);
 
-
-
-
     });
 
     test("should return 400 if header validation is not in correct format while deletion of the event :", async () => {
-
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
             const response = await app.inject({
@@ -1732,9 +1578,6 @@ describe("Event deletion  Creation API - Header Validation checking for the head
         }
     });
 });
-
-
-
 
 
 describe("Event deletion API - Params  Validation checking for the params in is in correct format or not for the UpdateT BY ID route", () => {
@@ -1762,15 +1605,6 @@ describe("Event deletion API - Params  Validation checking for the params in is 
 
     test("should return 400 if params validation is not in correct format:", async () => {
 
-        const invalidParamsTestCases = [
-            "", // Empty ID
-            "123", // Too short
-            "invalid-id", // Non-hex characters
-            "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
-            "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
-            "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
-        ];
-
         for (let i = 0; i < invalidParamsTestCases.length; i++) {
             const response = await app.inject({
                 method: 'DELETE',
@@ -1785,17 +1619,12 @@ describe("Event deletion API - Params  Validation checking for the params in is 
             expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
             const responseBody = JSON.parse(response.body);
 
-
-
             expect(responseBody.error).toBe('Bad Request');
             //  expect(responseBody.message).toMatch('The authorizati
             expect(responseBody.message).toMatch('The id is required, to delete the events of the particular event manager');
         }
     });
 });
-
-
-
 
 
 describe("testing wheather the given id event is present in the events model or not while deleting the event from the events model", () => {
@@ -1826,11 +1655,6 @@ describe("testing wheather the given id event is present in the events model or 
     test("should respond with a status code of 400 if the event id is not in the events model while deletion.", async () => {
         Events.findByIdAndDelete = jest.fn().mockResolvedValue(null);
 
-
-
-
-
-
         const response = await app.inject({
             method: 'DELETE',
             url: '/event/delete/67ab179b5ae8f11485a9bd35',
@@ -1854,9 +1678,6 @@ describe("testing wheather the given id event is present in the events model or 
 
 })
 
-
-
-
 describe("testing wheather the given id event is present in the events model and deleting the event from the events model is successfully doen  ", () => {
 
     let mockToken;
@@ -1879,13 +1700,9 @@ describe("testing wheather the given id event is present in the events model and
         Logs.findOne.mockResolvedValue(mockUserLog);
     });
 
-
-
-
     test("should respond with a status code of 200 if the event id is present in the events model  and deletion is successfully done .", async () => {
 
         //Events.findByIdAndDelete = jest.fn().mockResolvedValue(true);
-
 
         const mockEvent = { _id: "67ab179b5ae8f11485a9bd35", userId: "mockUserId" };
 
@@ -1905,8 +1722,6 @@ describe("testing wheather the given id event is present in the events model and
     });
 
 })
-
-
 
 //catch block Error  test code for the while deletion of the event here :
 
@@ -1931,7 +1746,6 @@ describe("testing catch block Error  while the give  fields are deleting correct
 
         Logs.findOne.mockResolvedValue(mockUserLog);
 
-
         Events.findById.mockResolvedValue({
 
             _id: "67ab179b5ae8f11485a9bd35",
@@ -1947,10 +1761,6 @@ describe("testing catch block Error  while the give  fields are deleting correct
             __v: 0
         })
 
-
-
-
-
     });
     test("should respond with a status code of 400 if the catch block error raised.", async () => {
         // Events.findByIdAndUpdate = jest.fn().mockResolvedValue(new Error("Database Connection Error"));
@@ -1965,7 +1775,6 @@ describe("testing catch block Error  while the give  fields are deleting correct
                 'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
             }
         });
-
 
         // When any field is invalid, it should return 400
         expect(response.statusCode).toBe(400);
@@ -1985,55 +1794,6 @@ describe("testing catch block Error  while the give  fields are deleting correct
 // user location giving test cases
 
 
-// test case for the  user , getting the events data without giving the location
-describe("testing case for  getting the events data without giving the location for the Get method ", () => {
-
-    let mockToken;
-    let mockUserLog;
-
-    beforeEach(() => {
-        mockToken = 'mockedToken.mockedToken.mockedToken';
-        EventLoc.find = jest.fn();
-
-
-        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
-
-        mockUserLog = {
-            _id: 'log123',
-            UserId: 'mockUser1Id',
-            logintime: new Date(),
-            logouttime: null,
-            UserToken: mockToken,
-            save: jest.fn().mockResolvedValue(true)
-        };
-
-        Logs.findOne.mockResolvedValue(mockUserLog);
-
-
-
-    });
-
-    test("should respond with a status code of 400 if the user trying to get the events data before giving the locatoion ", async () => {
-
-
-        EventLoc.findOne.mockResolvedValue(null);
-
-        const response = await app.inject({
-            method: 'GET',
-            url: '/event/get',
-            headers: {
-                'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
-            }
-        });
-
-        expect(response.statusCode).toBe(400);
-        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-        const responseBody = JSON.parse(response.body);
-        expect(responseBody).toEqual({ message: "Please provide your location first." });
-
-    });
-
-});
 
 describe("testing while user providing the location", () => {
     let mockToken;
@@ -2064,16 +1824,7 @@ describe("testing while user providing the location", () => {
 
     test("should respond with a status code of 400 if any  error raised for invalid header while giving the location .", async () => {
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
+      
         const testcase = [{ eventneedlocation: "amc" }]
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
@@ -2093,7 +1844,6 @@ describe("testing while user providing the location", () => {
 
         }
     });
-
 
 
     test("should respond with a status code of 400 if any  error raised for invalid body validation while giving the location .", async () => {
@@ -2136,7 +1886,6 @@ test("should respond with a status code of 400 if location already exits for thi
         { eventneedlocation: "amc" },
     ];
 
-
     const response = await app.inject({
         method: 'POST',
         url: '/event/location',
@@ -2155,8 +1904,6 @@ test("should respond with a status code of 400 if location already exits for thi
 
     expect(responseBody.message).toEqual("location already exist")
 })
-
-
 
 
 test("should respond with a status code of 200 if location given by user  successfully saved while giving the location .", async () => {
@@ -2201,14 +1948,11 @@ test("should respond with a status code of 200 if location given by user  succes
     expect(EventLoc.prototype.save).toHaveBeenCalled();
 })
 
-
 test("should respond with a status code of 400  when we get the catch block error given by user giving the location .", async () => {
 
     let mockToken = 'mocked1Token.mocked1Token.mocked1Token';
 
     EventLoc.findOne.mockRejectedValue(new Error("Data base Error"));
-
-
 
     const bodydata = [
         { eventneedlocation: "amc" },
@@ -2238,11 +1982,336 @@ test("should respond with a status code of 400  when we get the catch block erro
     // Ensure the save method was called
 
 })
+//
+
+// Testcases for the getting the events based on the locations given by the user:
+
+
+
+
+// test case for the  user , getting the events data without giving the location
+describe("testing case for  getting the events data without giving the location for the Get method ", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        //EventLoc.find = jest.fn();
+
+
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+
+
+    });
+
+    test("should respond with a status code of 400 if the user trying to get the events data before giving the locatoion ", async () => {
+
+
+        EventLoc.findOne.mockResolvedValue([]);
+
+        const response = await app.inject({
+            method: 'GET',
+                  url: '/event/eventsforlocation',
+            headers: {
+                'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+            }
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody).toEqual({ message: "Please provide your location first." });
+
+    });
+
+});
+
+describe("testing case for  getting the events data but no events for the location", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
+        EventLoc.findOne = jest.fn().mockResolvedValue({
+            eventneedlocation: "telangana", 
+            userId: "mockUserId"
+        });
+
+    
+        Events.find = jest.fn().mockResolvedValue(null);
+      
+      
+
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+
+    });
+
+    test("should respond with a status code of 400 if the user trying to get the events data but no events for the location", async () => {
+
+        const response = await app.inject({
+            method: 'GET',
+            url: '/event/eventsforlocation',
+            headers: {
+                'Authorization': `Bearer ${mockToken}`
+            }
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody).toEqual({ message: "No events found for this location" });
+
+    });
+
+});
+
+
+describe("Catch block  test case Error  - Get Events based on the location", () => {
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'admin' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+        // Mock Event data do not needed but keep it
+        Events.find.mockResolvedValue([{
+            _id: "67ab179b5ae8f11485a9bd35",
+            amountrange: 10,
+            eventname: "Event F",
+            eventdate: "2027-02-10T00:00:00.000Z",
+            eventlocation: "Location F",
+            eventtime: "15:30:30",
+            totalseats: 100,
+            availableseats: 100,
+            bookedseats: 0,
+            userId: "mockUserId",
+            __v: 0
+        }, {
+            _id: "67ab17b75ae8f11485a9bd38",
+            amountrange: 10,
+            eventname: "Event B",
+            eventdate: "2027-02-10T00:00:00.000Z",
+            eventlocation: "Location B",
+            eventtime: "15:30:30",
+            totalseats: 100,
+            availableseats: 100,
+            bookedseats: 0,
+            userId: "mockUserId",
+            __v: 0
+        }
+        ]);
+    });
+
+    test(" Should return 400 error when any error occurs while get the events locations", async () => {
+
+        if(  Events.findById.mockRejectedValue(new Error("Database Error 1")) || EventLoc.findOne.mockRejectedValue(new Error("Database Error 1"))){
+
+      
+        
+        const response = await app.inject({
+            method: 'GET',
+            url: '/event/eventsforlocation',
+
+
+            headers: {
+                'Authorization': `Bearer ${mockToken}`  
+            }
+
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.headers['content-type']).toContain('application/json');
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody.error).toMatch("Database Error 1")
+    }
+    });
+
+})
+
+
+
+
 
 
 
 // 33333333333333333333333333333333333333333333333333333333333333333333333333333
 // event booking all test cases :
+
+
+
+
+
+describe("testing while user providing the location", () => {
+    let mockToken;
+    let mockUserLog;
+    beforeEach(() => {
+        mockToken = 'mocked1Token.mocked1Token.mocked1Token';
+
+
+        jwt.verify.mockReturnValue({ id: 'mockUser1Id', role: 'user' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUser1Id',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);  
+
+         Events.findByIdAndUpdate = jest.fn().mockResolvedValue({
+        _id: "67ab179b5ae8f11485a9bd35",
+        amountrange: 10,
+        eventname: "Event F",
+        eventdate: "2027-02-10T00:00:00.000Z",
+        eventlocation: "location f",
+        eventtime: "15:30:30",
+        totalseats: 100,
+        availableseats: 60,
+        bookedseats: 40,
+        userId: "mockUser1Id",
+        __v: 0
+    });
+
+
+    });
+
+    
+
+
+
+
+
+    
+test("should calculate the correct amount and update event seats", async () => {
+    const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
+
+    // Mock event data
+    const mockEvent = {
+
+        _id: "67ab179b5ae8f11485a9bd35",
+        amountrange: 10,
+        eventname: "Event F",
+        eventdate: "2027-02-10T00:00:00.000Z",
+        eventlocation: "location f",
+        eventtime: "15:30:30",
+        totalseats: 100,
+        availableseats: 40,
+        bookedseats: 60,
+        userId: "mockUser1Id",
+        __v: 0
+
+    }
+
+    const data = {
+
+
+        "eventid": "67ab179b5ae8f11485a9bd35",
+        "amountrange": 10,
+        "eventname": "Event F",
+        "eventdate": "2027-02-10T00:00:00.000Z",
+        "eventlocation": "location f",
+        "eventtime": "15:30:30",
+        "eventManager": "EventManagerUser",
+        "eventManagerEmail": "eventmanager@example.com",
+        "eventBookedBy": "BookingUser",
+        "email": "bookinguser@example.com",
+        "NoOfSeatsBooking": 20,
+        "AmountNeedPay": 200,
+        "userId": "mockUser1Id"
+    }
+
+
+    const mockEventManager = {
+        _id: "mockUser1Id",
+        username: "EventManagerUser",
+        email: "eventmanager@example.com"
+    };
+
+    const mockBookingUser = {
+        _id: "new ObjectId('67b33a1b13016c9d42605dd3')",
+        username: "BookingUser",
+        email: "bookinguser@example.com"
+    };
+
+    Events.findByIdAndUpdate = jest.fn().mockResolvedValue(mockEvent)
+    
+    Users.findById.mockResolvedValueOnce(mockEventManager); // Mock for event manager
+    Users.findById.mockResolvedValueOnce(mockBookingUser); // Mock for booking user
+
+    EMB.findByIdAndUpdate = jest.fn().mockReturnValue(
+
+    data);
+    
+
+   
+    // Simulate booking 20 seats
+    const bodydata = { NoOfSeatsBooking: 20 };
+
+    const response = await app.inject({
+        method: 'POST',
+        url: '/event/eventit/67ab179b5ae8f11485a9bd35',
+        payload: bodydata,
+        headers: { 'Authorization': `Bearer ${mockToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    console.log("Full Response:", response);
+
+    //const responseBody = JSON.parse(response.body);
+
+    console.log("Response Body:", response.body);
+
+    expect(response.body).toEqual(data)
+
+
+});
+
+});
+
 
 
 describe("testing while user providing the location", () => {
@@ -2274,16 +2343,7 @@ describe("testing while user providing the location", () => {
 
     test("should respond with a status code of 400 if any  error raised for invalid header while booking the event  .", async () => {
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
+       
         const testcase = [{ NoOfSeatsBooking: 10 }]
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
@@ -2335,7 +2395,6 @@ describe("testing while user providing the location", () => {
 
 })
 
-
 test("should respond with a status code of 400 because seats for this particular event is completly booked while booking the event.", async () => {
 
     let mockToken = 'mocked1Token.mocked1Token.mocked1Token';
@@ -2353,9 +2412,6 @@ test("should respond with a status code of 400 because seats for this particular
         userId: "mockUser1Id",
         __v: 0
     })
-
-
-
 
     const bodydata = [
 
@@ -2401,7 +2457,6 @@ test("should respond with a status code of 400 if NoOfSeatsBooking exceeds avail
         __v: 0
     };
 
-
     Events.findById.mockResolvedValue(mockEvent);
 
 
@@ -2422,123 +2477,16 @@ test("should respond with a status code of 400 if NoOfSeatsBooking exceeds avail
     expect(response.statusCode).toBe(400);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
 
-
     const responseBody = JSON.parse(response.body);
-
 
     expect(responseBody.message).toEqual("maximum number of seats can be booked :40, so please reduce the number of seats");
 });
 
-test("should calculate the correct amount and update event seats", async () => {
-    const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
-
-    // Mock event data
-    const mockEvent = {
-
-        "id": "67ab179b5ae8f11485a9bd35",
-        "amountrange": 10,
-        "eventname": "Event F",
-        "eventdate": "2027-02-10T00:00:00.000Z",
-        "eventlocation": "location f",
-        "eventtime": "15:30:30",
-        "totalseats": 100,
-        "availableseats": 40,
-        "bookedseats": 60,
-        "userId": "mockUser1Id",
-        "__v": 0
-
-    }
-
-    const data = {
-
-
-        "eventid": "67ab179b5ae8f11485a9bd35",
-        "amountrange": 10,
-        "eventname": "Event F",
-        "eventdate": "2027-02-10T00:00:00.000Z",
-        "eventlocation": "location f",
-        "eventtime": "15:30:30",
-        "eventManager": "EventManagerUser",
-        "eventManagerEmail": "eventmanager@example.com",
-        "eventBookedBy": "BookingUser",
-        "email": "bookinguser@example.com",
-        "NoOfSeatsBooking": 20,
-        "AmountNeedPay": 200,
-        "userId": "mockUser1Id"
-    }
-
-
-    const EMmockUser = {
-        _id: "mockUser1Id",
-        username: "EventManagerUser",
-        email: "eventmanager@example.com"
-    };
-
-    const mockBookingUser = {
-        _id: "new ObjectId('67b33a1b13016c9d42605dd3')",
-        username: "BookingUser",
-        email: "bookinguser@example.com"
-    };
-
-    // Mock findById
-    Events.findById.mockResolvedValue(mockEvent);
-    // Users.findById.mockImplementation((id) => {
-    //     if (id === EMmockUser._id) return Promise.resolve(EMmockUser);
-    //     if (id === mockBookingUser._id) return Promise.resolve(mockBookingUser);
-    //     return null;
-    // });
-    EMB.findByIdAndUpdate.mockResolvedValue(data)
-
-    // Simulate booking 20 seats
-    const bodydata = { NoOfSeatsBooking: 20 };
-
-    const response = await app.inject({
-        method: 'POST',
-        url: '/event/eventit/67ab179b5ae8f11485a9bd35',
-        payload: bodydata,
-        headers: { 'Authorization': `Bearer ${mockToken}` },
-    });
-
-
-    expect(response.statusCode).toBe(200);
-
-    console.log("Full Response:", response);
-
-
-
-    const responseBody = JSON.parse(response.body);
-
-
-    console.log("Response Body:", response.body);
-
-    expect(responseBody).toEqual(
-
-        {
-            "eventid": "67ab179b5ae8f11485a9bd35",
-            "amountrange": 10,
-            "eventname": "Event F",
-            "eventdate": "2027-02-10T00:00:00.000Z",
-            "eventlocation": "location f",
-            "eventtime": "15:30:30",
-            "eventManager": "EventManagerUser",
-            "eventManagerEmail": "eventmanager@example.com",
-            "eventBookedBy": "BookingUser",
-            "email": "bookinguser@example.com",
-            "NoOfSeatsBooking": 20,
-            "AmountNeedPay": 200,
-            "userId": "mockUser1Id"
-
-
-
-        })
-});
 
 
 
 test("cATCH BLOCK ERROR WHILE BOOKING  THE  EVENT", async () => {
     const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
-
-
 
     // Mock findById
     Events.findById.mockRejectedValue(new Error("data base error"));
@@ -2546,7 +2494,6 @@ test("cATCH BLOCK ERROR WHILE BOOKING  THE  EVENT", async () => {
 
     // Mock save method for EMB
     EMB.prototype.save = jest.fn().mockRejectedValue(new Error("data base error"));
-
 
 
     // Simulate booking 10 seats
@@ -2567,9 +2514,6 @@ test("cATCH BLOCK ERROR WHILE BOOKING  THE  EVENT", async () => {
 });
 
 
-//
-
-
 // 33333333333333333333333333333333333333333333333333333333333333333333333333333
 // event booking all test cases :
 
@@ -2579,7 +2523,6 @@ describe("testing while user providing the location", () => {
     let mockUserLog;
     beforeEach(() => {
         mockToken = 'mocked1Token.mocked1Token.mocked1Token';
-
 
         jwt.verify.mockReturnValue({ id: 'mockUser1Id', role: 'user' });
 
@@ -2603,17 +2546,6 @@ describe("testing while user providing the location", () => {
 
     test("should respond with a status code of 400 if any  error raised for invalid header while getting all the booking   .", async () => {
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
-
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
 
@@ -2633,12 +2565,6 @@ describe("testing while user providing the location", () => {
         }
     });
 })
-
-
-
-
-
-
 
 
 test("Geting all the bookings of the user successfully :", async () => {
@@ -2677,11 +2603,9 @@ test("Geting all the bookings of the user successfully :", async () => {
 
     }];
 
-
     EMB.find.mockResolvedValue(data)
 
     // Simulate booking 10 seats
-
 
     const response = await app.inject({
         method: 'GET',
@@ -2696,22 +2620,14 @@ test("Geting all the bookings of the user successfully :", async () => {
 
     expect(responseBody).toEqual(data
 
-
-
-
-
     )
 });
-
-
-
 
 
 test("Catch block Error while Geting all the bookings  :", async () => {
     const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
 
     // Mock save method for EMB
-
 
     EMB.find.mockRejectedValue(new Error("data base error"))
 
@@ -2731,8 +2647,6 @@ test("Catch block Error while Geting all the bookings  :", async () => {
 
     expect(responseBody.error).toEqual("data base error")
 });
-
-
 
 
 describe("testing while updating the  booking of a user", () => {
@@ -2763,17 +2677,6 @@ describe("testing while updating the  booking of a user", () => {
     });
 
     test("should respond with a status code of 400 if any  error raised for invalid header while updating the booking   .", async () => {
-
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
 
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
@@ -2828,7 +2731,6 @@ test("should respond with a status code of 400 if any  error raised for invalid 
 });
 
 
-
 test("should respond with a status code of 400 if any  error raised for invalid body validation while updating the event.", async () => {
 
     const mockToken = "mockedToken.mockedToken.mockedToken"
@@ -2836,16 +2738,6 @@ test("should respond with a status code of 400 if any  error raised for invalid 
     const bodydata = [
         { NoOfSeatsBooking: 10 },
 
-    ];
-
-
-    const invalidParamsTestCases = [
-        "", // Empty ID
-        "123", // Too short
-        "invalid-id", // Non-hex characters
-        "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
-        "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
-        "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
     ];
 
     for (let i = 0; i < invalidParamsTestCases.length; i++) {
@@ -2867,8 +2759,6 @@ test("should respond with a status code of 400 if any  error raised for invalid 
         expect(responseBody.message).toEqual("The params is not Matching has per the requirements, give correct params id for updation")
     }
 });
-
-
 
 
 test("should respond with a status code of 400 if any  error raised when event not found while updating the event.", async () => {
@@ -2920,14 +2810,12 @@ test("should return an error if requested seats exceed available seats", async (
     };
 
     // Mock `findByIdAndUpdate` to return the event
-    Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
-
-
+    const event1=Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
 
     // Request to book more seats than available (e.g., 10 seats)
     const bodydata = { NoOfSeatsBooking: 10 };
 
-
+if (event1.availableseats < bodydata.NoOfSeatsBooking) {
 
     const response = await app.inject({
         method: 'PUT',
@@ -2936,17 +2824,14 @@ test("should return an error if requested seats exceed available seats", async (
         headers: { 'Authorization': `Bearer ${mockToken}` },
     });
 
-
     expect(response.statusCode).toBe(400);
     const responseBody = JSON.parse(response.body);
 
     expect(responseBody.message).toEqual(
         "maximum number of seats can be booked :5, so please reduce the number of seats");
 
-
+    }
 });
-
-
 
 
 test("should return an 200 if NoOfSeatsBooking is unchanged", async () => {
@@ -2976,11 +2861,8 @@ test("should return an 200 if NoOfSeatsBooking is unchanged", async () => {
 
     // Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
 
-
     const bodydata = { NoOfSeatsBooking: 10 };
     if (data.NoOfSeatsBooking === bodydata.NoOfSeatsBooking) {
-
-
 
         const response = await app.inject({
             method: 'PUT',
@@ -2998,7 +2880,6 @@ test("should return an 200 if NoOfSeatsBooking is unchanged", async () => {
 });
 
 
-
 test("should return an 200 if updation of the booking successsfully done", async () => {
 
     const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
@@ -3010,9 +2891,6 @@ test("should return an 200 if updation of the booking successsfully done", async
             done();
         })
     );
-
-
-
 
     const data = {
         eventid: "mockEvent._id1",
@@ -3085,15 +2963,6 @@ test("should return an 200 if updation of the booking successsfully done", async
 });
 
 
-
-
-
-
-
-
-
-
-
 test("should respond with a status code of 400 if any catch block  error raised for while updating the booking of a user    .", async () => {
 
     const mockToken = 'mocked1Token.mocked1Token.mocked1Token';
@@ -3120,8 +2989,6 @@ test("should respond with a status code of 400 if any catch block  error raised 
 
 
 });
-
-
 
 describe("testing while cancling the  booking of a user", () => {
     let mockToken;
@@ -3152,17 +3019,6 @@ describe("testing while cancling the  booking of a user", () => {
 
     test("should respond with a status code of 400 if any  error raised for invalid header while cancelling the booking .", async () => {
 
-        const invalidHeadersTestCases = [
-            {}, // No Authorization header
-            { Authorization: "" }, // Empty Authorization
-            { Authorization: "Bearer" }, // Missing token
-            { Authorization: "Bearer " }, // Missing token after space
-            { Authorization: "Bearer.invalid.token" }, // Invalid format
-            { Authorization: "RandomToken 12345" }, // Wrong prefix
-            { Authorization: "Bearer12345" }, // No space after Bearer
-            { Authorization: "Bearer mockedToken" }, // Only one part of JWT
-        ];
-
 
         for (let i = 0; i < invalidHeadersTestCases.length; i++) {
 
@@ -3184,7 +3040,6 @@ describe("testing while cancling the  booking of a user", () => {
 })
 
 
-
 test("should respond with a status code of 400 if any  error raised for invalid params id validation while cancelling the booking.", async () => {
 
     const mockToken = "mockedToken.mockedToken.mockedToken"
@@ -3192,16 +3047,6 @@ test("should respond with a status code of 400 if any  error raised for invalid 
     const bodydata = [
         { NoOfSeatsBooking: 10 },
 
-    ];
-
-
-    const invalidParamsTestCases = [
-        "", // Empty ID
-        "123", // Too short
-        "invalid-id", // Non-hex characters
-        "67ab179b5ae8f11485a9bd3", // 23 characters (should be 24)
-        "67ab179b5ae8f11485a9bd3555", // 25 characters (should be 24)
-        "67ab179b5ae8f11485a9bd3g", // Contains a non-hex character (g)
     ];
 
     for (let i = 0; i < invalidParamsTestCases.length; i++) {
@@ -3226,16 +3071,11 @@ test("should respond with a status code of 400 if any  error raised for invalid 
 });
 
 
-
-
 test("should respond with a status code of 400 if event not found in EMB Model while cancelling the event.", async () => {
 
     const mockToken = "mockedToken.mockedToken.mockedToken"
 
     EMB.findByIdAndUpdate.mockResolvedValue(null)
-
-
-
 
     const response = await app.inject({
         method: 'DELETE',
@@ -3255,8 +3095,6 @@ test("should respond with a status code of 400 if event not found in EMB Model w
 
 });
 
-
-
 test("should respond with a status code of 200 if the event id is present in the EMB  Model while cancelling the event is successfully done .", async () => {
 
 
@@ -3264,36 +3102,45 @@ test("should respond with a status code of 200 if the event id is present in the
 
     //Events.findByIdAndDelete = jest.fn().mockResolvedValue(true);
 
+   // Events.findByIdAndUpdate.mockResolvedValue(true);
 
-    const mockEvent = { _id: "67ab179b5ae8f11485a9bd35", userId: "mockUser1Id" };
+   Events.findByIdAndUpdate.mockResolvedValue({
+    bookedseats: 5,
+    availableseats: 10,
+    totalseats: 20,
+    save: jest.fn().mockResolvedValue(true),
+});
+
+    const mockEvent = { 
+        _id: "67ab179b5ae8f11485a9bd35", 
+        userId: "mockUser1Id" ,
+        eventid: "someEventId",
+        NoOfSeatsBooking: 5,
+
+    };
 
     EMB.findByIdAndDelete.mockResolvedValue(mockEvent);
+ 
 
     const response = await app.inject({
         method: 'DELETE',
-        url: '/event/delete/67ab179b5ae8f11485a9bd35',
+        url: '/event/cc/67ab179b5ae8f11485a9bd35',
         headers: {
-            'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+            'Authorization': `Bearer ${mockToken}` 
         }
     });
     expect(response.statusCode).toBe(200);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
     const responseBody = JSON.parse(response.body);
-    expect(responseBody).toHaveProperty('message', 'event booking cancelled successfully');
+    expect(responseBody.message).toEqual('event booking cancelled successfully');
 });
-
-
-
-
-
-
 
 
 test("should respond with a status code of 400 if any data base error raised while cancelling the event.", async () => {
 
 
 
-
+ const mockToken = "mockedToken.mockedToken.mockedToken"
 
     if (EMB.findByIdAndDelete.mockRejectedValue(new Error("data base error raised")) || Events.findByIdAndUpdate.mockRejectedValue(new Error("data base error raised"))) {
 

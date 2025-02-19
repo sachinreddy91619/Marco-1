@@ -1,0 +1,289 @@
+export const eventbook = async (request, reply) => {
+
+    const { NoOfSeatsBooking } = request.body;
+
+
+
+
+
+    try {
+
+
+
+        //const event=await Event.find({ _id: request.params.id }); 
+        const event = await Event.findById(request.params.id);
+
+        if (event.availableseats === 0) {
+            return reply.status(400).send({ message: "event is fully booked" })
+        }
+
+
+        if (NoOfSeatsBooking > event.availableseats) {
+            return reply.status(400).send({ message: `maximum number of seats can be booked :${event.availableseats}, so please reduce the number of seats` })
+
+        }
+
+
+
+        console.log(event)
+
+        // reply.send(event);
+
+        const e = event.userId;
+        console.log(e)
+
+        const user = await User.findById(e);
+        console.log(user)
+        const eventid = event._id;
+        console.log(eventid, "this is good to see this is good to see")
+
+        const eventname = event.eventname;
+        const eventdate = event.eventdate;
+        const eventlocation = event.eventlocation;
+        const amountrange = event.amountrange;
+        const eventtime = event.eventtime;
+        const eventManager = user.username;
+        const eventManagerEmail = user.email;
+        console.log(request.user.id)
+
+
+        const n = await User.findById(request.user.id);
+        console.log(n)
+        const eventBookedBy = n.username;
+        const email = n.email;
+        const AmountNeedPay = event.amountrange * NoOfSeatsBooking
+
+        console.log({ eventManager, eventManagerEmail, eventname, eventdate, eventlocation, amountrange, eventtime, eventBookedBy, email })
+
+        const com = new EMB({
+            eventid,
+            eventManager,
+            eventManagerEmail,
+            eventname,
+            eventdate,
+            eventlocation,
+            amountrange,
+            eventtime,
+
+            NoOfSeatsBooking,
+            eventBookedBy,
+            email,
+            AmountNeedPay,
+            userId: request.user.id
+        })
+
+        await com.save();
+        console.log(com)
+        reply.status(200).send(com);
+        //const event1=await User.findById(request.user.id);
+
+
+        const event1 = await Event.findById(request.params.id);
+
+
+        event1.bookedseats = event1.bookedseats + com.NoOfSeatsBooking,
+
+            event1.availableseats = event1.totalseats - event1.bookedseats
+
+        await event1.save();
+
+    } catch (err) {
+        reply.status(400).send({ error: err.message })
+    }
+
+}
+
+this is my contoleer logic hee i need to book an event and after booking iam saving that booking in the emb model and in response iam getting the complete booking details,
+by using this first i will search for the particular event 
+ const event = await Event.findById(request.params.id);
+
+
+ and that from the from the event model i will userid how created this event  by using this :
+
+  const e = event.userId
+        const user = await User.findById(e);
+
+        and after getting the evnt mangement details , 
+
+        and from the middlware i will get he currect user details 
+
+
+        by using this        const n = await User.findById(request.user.id);
+
+        after getting all these details i will create new schema:
+
+        const com = new EMB({
+            eventid,
+            eventManager,
+            eventManagerEmail,
+            eventname,
+            eventdate,
+            eventlocation,
+            amountrange,
+            eventtime,
+
+            NoOfSeatsBooking,
+            eventBookedBy,
+            email,
+            AmountNeedPay,
+            userId: request.user.id
+        })
+
+and i will saving this in the EMB model , and i need to get the response with all the booking details 
+eventid,
+            eventManager,
+            eventManagerEmail,
+            eventname,
+            eventdate,
+            eventlocation,
+            amountrange,
+            eventtime,
+
+            NoOfSeatsBooking,
+            eventBookedBy,
+            email,
+            AmountNeedPay,
+            userId: request.user.id, with 200 status code , for this scenario i need to get the test code only for the successfully test code, 
+
+//[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+
+when the location is matched then i need to get the response has the :
+[
+    {
+        "_id": "67a49aa29887739e175feaa0",
+        "amountrange": 35,
+        "eventname": "Funtion-Hall",
+        "eventdate": "2028-02-10T00:00:00.000Z",
+        "eventlocation": "telangana",
+        "eventtime": "18:15:10",
+        "totalseats": 100,
+        "availableseats": 100,
+        "bookedseats": 0,
+        "userId": "67a49a0f9887739e175fea98",
+        "__v": 0
+    },
+    {
+        "_id": "67b5e5ae40f396bf8101a114",
+        "amountrange": 10,
+        "eventname": "china-expo",
+        "eventdate": "2026-02-10T00:00:00.000Z",
+        "eventlocation": "telangana",
+        "eventtime": "18:15:10",
+        "totalseats": 100,
+        "availableseats": 100,
+        "bookedseats": 0,
+        "userId": "67b5e53740f396bf8101a10b",
+        "__v": 0
+    }
+]
+
+// test case for the  user , getting the events data without giving the location
+describe("testing case for  getting the events data without giving the location for the Get method ", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+        EventLoc.find = jest.fn();
+
+
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUser1Id',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+
+
+    });
+
+    test("should respond with a status code of 400 if the user trying to get the events data before giving the locatoion ", async () => {
+
+
+        EventLoc.findOne.mockResolvedValue(null);
+
+        const response = await app.inject({
+            method: 'GET',
+            url: '/event/get',
+            headers: {
+                'Authorization': `Bearer ${mockToken}`  // Include the mock Authorization header
+            }
+        });
+
+        expect(response.statusCode).toBe(404);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody).toEqual({ message: "Please provide your location first." });
+
+    });
+
+});
+
+
+
+
+
+
+// test case for the  user , getting the events data  but no events for the location
+describe("testing case for  getting the events data but no events for the location", () => {
+
+    let mockToken;
+    let mockUserLog;
+
+    beforeEach(() => {
+        mockToken = 'mockedToken.mockedToken.mockedToken';
+
+        jwt.verify.mockReturnValue({ id: 'mockUserId', role: 'user' });
+        EventLoc.findOne = jest.fn().mockResolvedValue({
+            eventneedlocation: "telangana", 
+            userId: "mockUserId"
+        });
+
+      
+        Events.find = jest.fn().mockResolvedValue([]);
+
+      
+
+
+        mockUserLog = {
+            _id: 'log123',
+            UserId: 'mockUserId',
+            logintime: new Date(),
+            logouttime: null,
+            UserToken: mockToken,
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        Logs.findOne.mockResolvedValue(mockUserLog);
+
+
+    });
+
+    test("should respond with a status code of 400 if the user trying to get the events data but no events for the location", async () => {
+
+        const response = await app.inject({
+            method: 'GET',
+            url: '/event/get',
+            headers: {
+                'Authorization': `Bearer ${mockToken}`
+            }
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody).toEqual({ message: "No events found for this location" });
+
+    });
+
+});
+
